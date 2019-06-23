@@ -25,10 +25,6 @@ namespace Assets.Scripts
 		/// </summary>
 		private readonly static float threshold_ = Mathf.Cos(Mathf.PI * 0.125f);
 
-		/// <summary>
-		/// Delay du double clique.
-		/// </summary>
-		private readonly float multiClickDelay_ = 0.25f;
 
 		/// <summary>
 		/// Position au début de l'action.
@@ -45,10 +41,6 @@ namespace Assets.Scripts
 		/// </summary>
 		private float beginAng_;
 
-		/// <summary>
-		/// Nombre de clique effectué dans le délai.
-		/// </summary>
-		private int clickCount_;
 
 		/// <summary>
 		/// Coroutine de gestion du multi clique.
@@ -384,27 +376,6 @@ namespace Assets.Scripts
 			}
 		}
 
-		/// <summary>
-		/// Gére le multi clique.
-		/// </summary>
-		/// <returns>L'énumérator nécessaire pour créer la coroutine.</returns>
-		private IEnumerator HandleMultiClick()
-		{
-			beginTouchCount_ = GetTouchCount();
-
-			yield return new WaitForSeconds(multiClickDelay_);
-
-			var touchCount_ = GetTouchCount();
-
-			if (beginTouchCount_ == touchCount_)
-			{
-				Click?.Invoke(gameObject, touchCount_, clickCount_);
-			}
-
-			clickCount_ = 0;
-			handleMultiClickCoroutine_ = null;
-		}
-
 		public void OnPointerEnter(PointerEventData eventData)
 		{
 			Enter?.Invoke(gameObject);
@@ -427,12 +398,14 @@ namespace Assets.Scripts
 
 		public void OnPointerClick(PointerEventData eventData_)
 		{
-			clickCount_++;
+			var touchCount_ = 1;
 
-			if (handleMultiClickCoroutine_ == null)
+			if (Input.touchSupported && Input.multiTouchEnabled)
 			{
-				handleMultiClickCoroutine_ = StartCoroutine(HandleMultiClick());
+				touchCount_ = Input.touchCount;
 			}
+
+			Click?.Invoke(gameObject, touchCount_, eventData_.clickCount);
 		}
 
 		private void OnDisable()

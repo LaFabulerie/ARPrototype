@@ -1,22 +1,21 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
 	public class AugmentedFaceCreatorLayerWorker : MonoBehaviour
 	{
-		// Objets enfants
-		private GameObject layersObj_;
+		/// <summary>
+		/// Gestionnaire de travailleur.
+		/// </summary>
+		public GameObject WorkerObj_
+		{
+			get => GameObject.Find("Worker");
+		}
 
 		/// <summary>
-		/// Nombre de calque initialisé.
+		/// Contenant des calques.
 		/// </summary>
-		private int layerCount_;
-
-		/// <summary>
-		/// Objet de caméra en cours.
-		/// </summary>
-		private GameObject cameraObj_;
+		public GameObject LayersObj_ => transform.Find("Layers").gameObject;
 
 		/// <summary>
 		/// Indique si l'enregistrement est en cours.
@@ -36,53 +35,85 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Nombre de calque maximum.
 		/// </summary>
-		public int MaxLayer_ { get; } = 20;
+		public int MaxLayer_ { get; } = 100;
 
 		/// <summary>
-		/// Largeur de la texture.
+		/// Nombre de calque maximum.
+		/// </summary>
+		public float LayerOffset_ => AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().Depth_ / MaxLayer_;
+
+		/// <summary>
+		/// Largeur de la texture de sortie.
 		/// </summary>
 		public int Width_ { get; set; }
 
 		/// <summary>
-		/// Hauteur de la texture.
+		/// Hauteur de la texture de sortie.
 		/// </summary>
 		public int Height_ { get; set; }
 
 		/// <summary>
+		/// Peut ajouter de nouveau calque.
+		/// </summary>
+		public bool CanAddLayer_ => LayersObj_.transform.childCount < MaxLayer_;
+
+		/// <summary>
 		/// Intialise le composant.
 		/// </summary>
-		public void Initialize()
+		/// <param name="width_">Largeur de la texture de sortie</param>
+		/// <param name="height_">hauteur de la texture de sortie</param>
+		public void Initialize(int width_, int height_)
 		{
+			Width_ = width_;
+			Height_ = height_;
+			var layerCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+
+			name = $"LayerWorker-{transform.GetSiblingIndex():D3}";
+			Texture_ = new Texture2D(Width_, Height_, TextureFormat.ARGB32, false, false);
+
+			layerCameraPivotObjAFCC_.SetRenderTexture(Width_, Height_);
+
 			IsInitialized_ = true;
+		}
+
+		public Texture2D Save()
+		{
+			IsRecording_ = true;
+
+			var cameraObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+
+			AugmentedFaceCreatorWorker.LayerCameraPivotObj_.transform.position = transform.position;
+
+			var cullingMask_ = cameraObjAFCC_.CameraObjC_.cullingMask;
+			cameraObjAFCC_.CameraObjC_.cullingMask = 1 << 0;
+
+			cameraObjAFCC_.CameraObjC_.Render();
+
+			Save(cameraObjAFCC_.RenderTexture_);
+
+			cameraObjAFCC_.CameraObjC_.cullingMask = cullingMask_;
+
+			IsRecording_ = false;
+
+			return Texture_;
 		}
 
 		/// <summary>
 		/// Prépare l'enregistrement.
 		/// </summary>
-		/// <param name="cameraObj_">Objet</param>
-		/// <param name="width_">Largeur de la texture</param>
-		/// <param name="height_">Jauteur de la texture</param>
-		public RenderTexture PrepareRecording(GameObject cameraObj_, int width_, int height_)
+		/// <param name="cameraObj_">Caméra de calque</param>
+		public RenderTexture StartRecording()
 		{
 			if (!IsInitialized_)
 			{
 				return null;
 			}
 
-			Width_ = width_;
-			Height_ = height_;
-
 			IsRecording_ = true;
 
-			this.cameraObj_ = cameraObj_;
+			AugmentedFaceCreatorWorker.LayerCameraPivotObj_.transform.position = transform.position;
 
-			this.cameraObj_.transform.position = transform.position;
-
-			var cameraObjAFCC_ = this.cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
-
-			cameraObjAFCC_.SetRenderTexture(width_, height_);
-
-			Texture_ = new Texture2D(width_, height_, TextureFormat.ARGB32, false, false);
+			var cameraObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
 			return cameraObjAFCC_.RenderTexture_;
 		}
@@ -90,14 +121,12 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Sauvegarde la texture.
 		/// </summary>
-		/// <param name="aflc_">Composant</param>
-		private void SaveToTexture(AugmentedFaceCreatorCamera aflc_)
+		private void Save(RenderTexture texture_)
 		{
 			var current_ = RenderTexture.active;
 
-			RenderTexture.active = aflc_.RenderTexture_;
-
-			Texture_.ReadPixels(new Rect(0f, 0f, aflc_.RenderTexture_.width, aflc_.RenderTexture_.height), 0, 0, false);
+			RenderTexture.active = texture_;
+			Texture_.ReadPixels(new Rect(0f, 0f, texture_.width, texture_.height), 0, 0, false);
 			Texture_.Apply();
 
 			RenderTexture.active = current_;
@@ -106,170 +135,51 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Arrête l'enregistrement.
 		/// </summary>
-		public Texture2D StopRecording(GameObject camObj_)
+		public Texture2D StopRecording()
 		{
-			var camObjAFLC_ = camObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var cameraObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
-			SaveToTexture(camObjAFLC_);
+			Save(cameraObjAFCC_.RenderTexture_);
 
 			IsRecording_ = false;
 
 			return Texture_;
 		}
 
-		public Vector2 GetPositionXY(GameObject layerObj_)
-		{
-			return layerObj_.transform.localPosition;
-		}
-
-		/// <summary>
-		/// Définit la position du calque sur le plan XY.
-		/// </summary>
-		/// <param name="layerObj_">Calque à déplacer.</param>
-		/// <param name="localPos_">Nouvelle position.</param>
-		public void SetPositionXY(GameObject layerObj_, Vector2 localPos_)
-		{
-			if (cameraObj_ == null)
-			{
-				return;
-			}
-
-			var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
-
-			localPos_.x = Mathf.Clamp(localPos_.x, Mathf.Min(cameraObjAFCC_.MinimumBounds_.x, cameraObjAFCC_.MaximumBounds_.x), Mathf.Max(cameraObjAFCC_.MinimumBounds_.x, cameraObjAFCC_.MaximumBounds_.x));
-
-			localPos_.y = Mathf.Clamp(localPos_.y, Mathf.Min(cameraObjAFCC_.MinimumBounds_.y, cameraObjAFCC_.MaximumBounds_.y), Mathf.Max(cameraObjAFCC_.MinimumBounds_.y, cameraObjAFCC_.MaximumBounds_.y));
-
-			layerObj_.transform.localPosition = new Vector3(localPos_.x, localPos_.y, layerObj_.transform.localPosition.z);
-		}
-
-		/// <summary>
-		/// Retourne l'angle de l'objet sur le plan XY.
-		/// </summary>
-		/// <returns>Angle sur le plan XY.</returns>
-		public Quaternion GetRotation(GameObject layerObj_)
-		{
-			return layerObj_.transform.localRotation;
-		}
-
-		/// <summary>
-		/// Définit la rotation du maillage sur le plan XY.
-		/// </summary>
-		/// <param name="rotation_">Rotation.</param>
-		public void SetRotation(GameObject layerObj_, Quaternion rotation_)
-		{
-			layerObj_.transform.localRotation = rotation_;
-		}
-
-		/// <summary>
-		/// Définit la position du calque sur l'axe Z.
-		/// </summary>
-		/// <param name="layerObj_">Calque à déplacer.</param>
-		public void SetPositionOnZ(GameObject layerObj_)
-		{
-			var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
-
-			var distance_ = cameraObjAFCC_.MaximumBounds_.z - cameraObjAFCC_.MinimumBounds_.z;
-			var unit_ = Mathf.Abs(distance_ / MaxLayer_);
-
-			var newZ_ = ((layerObj_.transform.GetSiblingIndex() + 1) * unit_ + cameraObjAFCC_.CameraObjC_.nearClipPlane) * -1f;
-
-			layerObj_.transform.localPosition = new Vector3(layerObj_.transform.localPosition.x, layerObj_.transform.localPosition.y, newZ_);
-		}
-
-		/// <summary>
-		/// Retourne l'échelle de l'objet sur le plan XY.
-		/// </summary>
-		/// <returns>Angle sur le plan XY.</returns>
-		public Vector2 GetScale(GameObject layerObj_)
-		{
-			return layerObj_.transform.localScale;
-		}
-
-		/// <summary>
-		/// Définit la mise à l'échelle du maillage sur le plan XY.
-		/// </summary>
-		/// <param name="scale_">Echelle.</param>
-		public void SetScale(GameObject layerObj_, Vector2 scale_)
-		{
-			layerObj_.transform.localScale = new Vector3(scale_.x, scale_.y, layerObj_.transform.localScale.z);
-		}
-
 		/// <summary>
 		/// Ajoute le calque au travailleur.
 		/// </summary>
-		/// <param name="supportMeshObject_">Maillage de support de calque.</param>
-		/// <param name="localPos_">Position locale du calque</param>
-		/// <returns></returns>
-		public (int, GameObject) AddLayer(GameObject supportMeshObject_, Vector3 localPos_)
+		/// <param name="layerSupportObj_">Maillage de support de calque.</param>
+		/// <returns>Calque créé</returns>
+		public GameObject AddLayer(GameObject layerSupportObj_, Texture2D texture_)
 		{
-			var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			if (!CanAddLayer_)
+			{
+				return null;
+			}
 
-			var newLayerObj_ = Instantiate(supportMeshObject_, Vector3.zero, Quaternion.identity, layersObj_.transform);
+			var layerObj_ = Instantiate(layerSupportObj_, Vector3.zero, Quaternion.identity, LayersObj_.transform);
+			layerObj_.name = $"Layer-{layerObj_.transform.GetSiblingIndex():D3}";
 
-			newLayerObj_.name = $"Layer-{layerCount_:D3}";
+			var layerObjAFCSM_ = layerObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
 
-			SetPositionXY(newLayerObj_, new Vector2(cameraObjAFCC_.transform.localPosition.x, cameraObjAFCC_.transform.localPosition.y));
+			layerObjAFCSM_.Initialize(AugmentedFaceCreatorWorker.LayerCameraPivotObj_);
+			layerObjAFCSM_.ChangeTexture(texture_);
 
-			SetPositionOnZ(newLayerObj_);
-
-			return (layerCount_++, newLayerObj_);
+			return layerObj_;
 		}
 
 		/// <summary>
 		/// Supprime le calque du travailleur.
 		/// </summary>
-		/// <param name="layerWorkerObj_">Calque à supprimer.</param>
-		public void RemoveLayer(GameObject layerWorkerObj_)
+		/// <param name="layerWorkerObj_">Travailleur de calque à supprimer.</param>
+		public void Remove()
 		{
 #if UNITY_EDITOR
-			DestroyImmediate(layerWorkerObj_);
+			DestroyImmediate(gameObject);
 #else
-			Destroy(layerWorkerObj_);
+			Destroy(gameObject);
 #endif
-		}
-
-		/// <summary>
-		/// Avant le calque vers l'avant d'une unité.
-		/// </summary>
-		/// <param name="layerObj_">Calque à avancer.</param>
-		public void MoveForwardLayer(GameObject layerObj_)
-		{
-			var currentIndex_ = layerObj_.transform.GetSiblingIndex();
-			var newIndex_ = Mathf.Clamp(currentIndex_ - 1, 0, layersObj_.transform.childCount - 1);
-
-			var currentPos_ = layerObj_.transform.localPosition;
-			var newPos_ = layersObj_.transform.GetChild(newIndex_).localPosition;
-
-			layersObj_.transform.GetChild(newIndex_).localPosition = new Vector3(newPos_.x, newPos_.y, currentPos_.z);
-			layerObj_.transform.localPosition = new Vector3(currentPos_.x, currentPos_.y, newPos_.z);
-
-			layersObj_.transform.GetChild(newIndex_).SetSiblingIndex(currentIndex_);
-			layerObj_.transform.SetSiblingIndex(newIndex_);
-		}
-
-		/// <summary>
-		/// Recule le calque vers l'arrière d'une unité.
-		/// </summary>
-		/// <param name="layerWorkerObj_">Calque à reculer.</param>
-		public void MoveBackwardLayer(GameObject layerObj_)
-		{
-			var currentIndex_ = layerObj_.transform.GetSiblingIndex();
-			var newIndex_ = Mathf.Clamp(currentIndex_ + 1, 0, layersObj_.transform.childCount - 1);
-
-			var currentPos_ = layerObj_.transform.localPosition;
-			var newPos_ = layersObj_.transform.GetChild(newIndex_).localPosition;
-
-			layersObj_.transform.GetChild(newIndex_).localPosition = new Vector3(newPos_.x, newPos_.y, currentPos_.z);
-			layerObj_.transform.localPosition = new Vector3(currentPos_.x, currentPos_.y, newPos_.z);
-
-			layersObj_.transform.GetChild(newIndex_).SetSiblingIndex(currentIndex_);
-			layerObj_.transform.SetSiblingIndex(newIndex_);
-		}
-
-		private void OnEnable()
-		{
-			layersObj_ = transform.Find("Layers").gameObject;
 		}
 	}
 }

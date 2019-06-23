@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using GoogleARCore;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,21 @@ namespace Assets.Scripts
 		public static AppManager Current_ { get => GameObject.Find("AppManager").GetComponent<AppManager>(); }
 
 		public static Orientation Orientation_ { get; private set; }
+
+		private static Dictionary<string, GameObject> meshObjs_;
+
+		public static Dictionary<string, GameObject> MeshObjs_
+		{
+			get
+			{
+				if (meshObjs_ == null)
+				{
+					meshObjs_ = new Dictionary<string, GameObject>();
+				}
+
+				return meshObjs_;
+			}
+		}
 
 		private Orientation prevOrientation_;
 
@@ -149,7 +165,7 @@ namespace Assets.Scripts
 			}
 		}
 
-		public void OnEnable()
+		private void Awake()
 		{
 			if (Application.isPlaying)
 			{
@@ -165,11 +181,11 @@ namespace Assets.Scripts
 			}
 		}
 
-		public void OnDisable()
+		private void OnDestroy()
 		{
 			StopAllCoroutines();
 
-			UnityEngine.Screen.orientation = ScreenOrientation.AutoRotation;
+			Screen.orientation = ScreenOrientation.AutoRotation;
 		}
 	}
 }

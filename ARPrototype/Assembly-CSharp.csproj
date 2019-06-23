@@ -253,9 +253,6 @@
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorMeshWorker.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorSurfaceMesh.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorWorker.cs" />
-    <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorWorkerOld.cs" />
-    <Compile Include="Assets\Scripts\AugmentedFaceCreator\ImageLayer.cs" />
-    <Compile Include="Assets\Scripts\AugmentedFaceCreator\ImageLayerWorker.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\AugmentedImageManager.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\AugmentedImageSurface.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\ImagePlayer.cs" />
@@ -396,7 +393,6 @@
     <Compile Include="Assets\UnityARKitPlugin\Plugins\iOS\UnityARKit\NativeInterface\UnityARSessionNativeInterface.cs" />
     <Compile Include="Assets\UnityARKitPlugin\UnityARKitPluginSettings.cs" />
     <None Include="Assets\GoogleARCore\Examples\Common\Materials\Shaders\PlaneGrid.shader" />
-    <None Include="Assets\Shaders\TransparentWithLightEstimation.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\GoogleARCore\Examples\Common\Materials\Shaders\MobileDiffuseWithLightEstimation.shader" />
@@ -411,7 +407,6 @@
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\UnityARKitPlugin\ARKitRemote\ARKITREMOTE.txt" />
-    <None Include="Assets\Shaders\Transparent.shader" />
     <None Include="Assets\UnityARKitPlugin\Plugins\iOS\UnityARKit\Shaders\YUVShaderLinear.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\GoogleARCore\Examples\ComputerVision\Materials\EdgeDetectionBackground.shader" />
@@ -420,8 +415,6 @@
     <None Include="Assets\UnityARKitPlugin\Examples\Common\Shaders\InstancedSurfaceShader.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Fonts\Noto Sans\LICENSE.txt" />
-    <None Include="Assets\Shaders\OpaqueWithLightEstimation.shader" />
-    <None Include="Assets\Shaders\Texture2D.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\UnityARKitPlugin\Plugins\iOS\UnityARKit\Shaders\YUVShader.shader" />
     <None Include="Assets\GoogleARCore\Examples\Common\Materials\Shaders\MobileSpecularWithLightEstimation.shader" />

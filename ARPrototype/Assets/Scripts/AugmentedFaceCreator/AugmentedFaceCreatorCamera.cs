@@ -1,21 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
 	public class AugmentedFaceCreatorCamera : MonoBehaviour
 	{
-		// Objets enfants
-		private GameObject yawObj_;
-		private GameObject pitchObj_;
-		private GameObject cameraObj_;
-
-		private Quaternion tempQuaternion1_;
-		private Quaternion tempQuaternion2_;
+		/// <summary>
+		/// Gestionnaire de travailleur.
+		/// </summary>
+		public GameObject WorkerObj_
+		{
+			get => GameObject.Find("Worker");
+		}
 
 		/// <summary>
-		/// Indique si l'enregistrement est en cours.
+		/// Objet de yaw.
+		/// </summary>
+		public GameObject YawObj_ => transform.Find("Yaw").gameObject;
+
+		/// <summary>
+		/// Objet de pitch.
+		/// </summary>
+		public GameObject PitchObj_ => YawObj_.transform.Find("Pitch").gameObject;
+
+		/// <summary>
+		/// Objet portant la caméra.
+		/// </summary>
+		public GameObject CameraObj_ => PitchObj_.transform.Find("Camera").gameObject;
+
+		/// <summary>
+		/// Indique si l'initialisation est terminé.
 		/// </summary>
 		public bool IsInitialized_ { get; private set; }
 
@@ -44,7 +57,86 @@ namespace Assets.Scripts
 		/// </summary>
 		public Camera CameraObjC_
 		{
-			get => cameraObj_.GetComponent<Camera>();
+			get => CameraObj_.GetComponent<Camera>();
+		}
+
+		/// <summary>
+		/// Arrière plan.
+		/// </summary>
+		private Color Background_
+		{
+			get => CameraObjC_.backgroundColor;
+			set
+			{
+				CameraObjC_.clearFlags = CameraClearFlags.SolidColor;
+				CameraObjC_.backgroundColor = value;
+			}
+		}
+
+		/// <summary>
+		/// Définit les distances de coupures.
+		/// </summary>
+		public (float near_, float far_) ClippingPlane_
+		{
+			get => (CameraObjC_.nearClipPlane, CameraObjC_.farClipPlane);
+			set
+			{
+				CameraObjC_.nearClipPlane = value.near_;
+				CameraObjC_.farClipPlane = value.far_;
+			}
+		}
+
+		/// <summary>
+		/// Position.
+		/// </summary>
+		public Vector3 Position_
+		{
+			get => transform.localPosition;
+			set
+			{
+				transform.localPosition = value;
+
+				ComputeBounds();
+			}
+		}
+
+		/// <summary>
+		/// Direction du regard.
+		/// </summary>
+		public Vector3 Forward_ => CameraObjC_.transform.forward;
+
+		/// <summary>
+		/// Profondeur de l'espace.
+		/// </summary>
+		public float Depth_ => ClippingPlane_.far_ - ClippingPlane_.near_;
+
+		/// <summary>
+		/// Z Ratio
+		/// </summary>
+		public float ZRatio
+		{
+			get => PitchObj_.transform.localPosition.z / ClippingPlane_.far_;
+			set
+			{
+				value = Mathf.Clamp01(value);
+
+				PitchObj_.transform.localPosition = Vector3.forward * (value * Depth_ + ClippingPlane_.near_);
+
+				ComputeBounds();
+			}
+		}
+
+		/// <summary>
+		/// Rotation.
+		/// </summary>
+		public (float yaw_, float pitch_) Rotation
+		{
+			get => (YawObj_.transform.localEulerAngles.y, PitchObj_.transform.localEulerAngles.x);
+			set
+			{
+				YawObj_.transform.localRotation = Quaternion.AngleAxis(value.yaw_, Vector3.up);
+				PitchObj_.transform.localRotation = Quaternion.AngleAxis(value.pitch_, Vector3.right);
+			}
 		}
 
 		/// <summary>
@@ -52,7 +144,6 @@ namespace Assets.Scripts
 		/// </summary>
 		/// <param name="width_">Largeur de la texture de sortie</param>
 		/// <param name="height_">Hauteur de la texture de sortie</param>
-		/// <param name="depth_">Profondeur de la texture de sortie</param>
 		public void SetRenderTexture(int width_, int height_)
 		{
 			if (RenderTexture_ != null)
@@ -60,7 +151,7 @@ namespace Assets.Scripts
 				RenderTexture_.Release();
 			}
 
-			RenderTexture_ = new RenderTexture(width_, height_, 24);
+			RenderTexture_ = new RenderTexture(width_, height_, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 
 			CameraObjC_.targetTexture = RenderTexture_;
 			CameraObjC_.forceIntoRenderTexture = true;
@@ -78,27 +169,6 @@ namespace Assets.Scripts
 		}
 
 		/// <summary>
-		/// Définit la couleur d'effacement.
-		/// </summary>
-		/// <param name="color_">Couleur d'effacement</param>
-		private void SetBackground(Color color_)
-		{
-			CameraObjC_.clearFlags = CameraClearFlags.SolidColor;
-			CameraObjC_.backgroundColor = color_;
-		}
-
-		/// <summary>
-		/// Définit les distances de coupures.
-		/// </summary>
-		/// <param name="near_">Distance de coupure proche</param>
-		/// <param name="far_">Distance de coupure éloigné</param>
-		private void SetClippingPlanes(float near_, float far_)
-		{
-			CameraObjC_.nearClipPlane = near_;
-			CameraObjC_.farClipPlane = far_;
-		}
-
-		/// <summary>
 		/// Calcul les limites.
 		/// </summary>
 		private void ComputeBounds()
@@ -111,77 +181,27 @@ namespace Assets.Scripts
 		}
 
 		/// <summary>
-		/// Définit la position de la caméra.
-		/// </summary>
-		/// <param name="localPos_">Position locale</param>
-		public void SetPosition(Vector3 localPos_)
-		{
-			transform.localPosition = localPos_;
-
-			ComputeBounds();
-		}
-
-		public float GetZRatio()
-		{
-			return pitchObj_.transform.localPosition.z / CameraObjC_.farClipPlane;
-		}
-
-		public void TranslateOnZ(float zRatio)
-		{
-			var zPos_ = zRatio * (CameraObjC_.farClipPlane - CameraObjC_.nearClipPlane);
-
-			pitchObj_.transform.localPosition = new Vector3(pitchObj_.transform.localPosition.x, pitchObj_.transform.localPosition.y, zPos_);
-
-			ComputeBounds();
-		}
-
-		public void SetupRotationXY()
-		{
-			tempQuaternion1_ = yawObj_.transform.localRotation;
-			tempQuaternion2_ = pitchObj_.transform.localRotation;
-		}
-
-		public void RotateOnXY(Vector2 rot_)
-		{
-			yawObj_.transform.localRotation = tempQuaternion1_ * Quaternion.AngleAxis(rot_.x, Vector3.up);
-			pitchObj_.transform.localRotation = tempQuaternion2_ * Quaternion.AngleAxis(rot_.y, Vector3.right);
-		}
-
-		/// <summary>
-		/// Initialise le composant.
+		/// Initialisation.
 		/// </summary>
 		/// <param name="renderWidth_">Largeur de la texture de sortie</param>
 		/// <param name="renderHeight_">Hauteur de la texture de sortie</param>
-		public void Initialize(int renderWidth_, int renderHeight_, Color color_, float near_, float far_, Vector3 localPos_, Vector3 localDir_)
-		{
-			yawObj_ = transform.Find("Yaw").gameObject;
-			pitchObj_ = yawObj_.transform.Find("Pitch").gameObject;
-			cameraObj_ = pitchObj_.transform.Find("Camera").gameObject;
-
-			SetRenderTexture(renderWidth_, renderHeight_);
-
-			SetOrthographicMode();
-
-			SetBackground(color_);
-
-			SetClippingPlanes(near_, far_);
-
-			transform.localRotation = Quaternion.LookRotation(localDir_, Vector3.up);
-
-			SetPosition(localPos_);
-
-			IsInitialized_ = true;
-		}
-
-		private void OnDisable()
+		public void Initialize(int renderWidth_, int renderHeight_, Color color_, float near_, float far_, Vector3 pos_, Vector3 dir_)
 		{
 			if (RenderTexture_ != null)
 			{
 				RenderTexture_.Release();
 			}
 
-			CameraObjC_.targetTexture = null;
-			CameraObjC_.forceIntoRenderTexture = false;
+			transform.localRotation = Quaternion.LookRotation(dir_, Vector3.up);
+
+			SetRenderTexture(renderWidth_, renderHeight_);
+			SetOrthographicMode();
+
+			Background_ = color_;
+			ClippingPlane_ = (near_, far_);
+			Position_ = pos_;
+
+			IsInitialized_ = true;
 		}
 	}
 }

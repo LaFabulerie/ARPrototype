@@ -8,31 +8,67 @@ namespace Assets.Scripts
 	[ExecuteAlways()]
 	public class UIAugmentedFaceCreatorLayer : MonoBehaviour
 	{
-		public GameObject UIObjectObj_ { get; set; }
+		public static GameObject ReferenceLayerObj_ { get; private set; }
 
-		// Objets enfants
-		private GameObject canvasObj_;
-		private GameObject bodyLandscapeObj_;
-		private GameObject layerNameObj_;
-		private GameObject buttonRemoveLayerObj_;
-		public GameObject buttonHideLayerObj_;
-		private GameObject buttonMoveForwardObj_;
-		private GameObject buttonMoveBackwardObj_;
+		/// <summary>
+		/// Canvas.
+		/// </summary>
+		public GameObject CanvasObj_ => GameObject.Find("Canvas");
+
+		/// <summary>
+		/// Vue en mode paysage.
+		/// </summary>
+		public GameObject BodyLandscapeObj_ => CanvasObj_.transform.Find("Body").Find("Body-Landscape").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ObjectObj_ => transform.parent.parent.parent.parent.gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject LayerNameObj_ => transform.Find("Text-Name").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonRemoveLayerObj_ => transform.Find("Button-Remove").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonHideLayerObj_ => transform.Find("Button-Hide").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonMoveForwardObj_ => transform.Find("Button-MoveForward").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonMoveBackwardObj_ => transform.Find("Button-MoveBackward").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject LayerObj_ { get; private set; }
 
 		/// <summary>
 		/// Taille des surfaces à toucher mis à l'échelle mis à l'échelle.
 		/// </summary>
-		private Vector2 scaledTouchSurfaceSize_;
+		public Vector2 scaledTouchSurfaceSize_ { get; private set; }
 
 		/// <summary>
 		/// Taille des marges mis à l'échelle.
 		/// </summary>
-		private float scaledMarginSize_;
+		public float scaledMarginSize_ { get; private set; }
 
 		/// <summary>
 		/// Taille des marges mis à l'échelle.
 		/// </summary>
-		private int scaledBodyFontSize_;
+		public int scaledBodyFontSize_ { get; private set; }
 
 		/// <summary>
 		/// Taille des surfaces à toucher.
@@ -52,54 +88,205 @@ namespace Assets.Scripts
 		[SerializeField]
 		private int bodyfontSize_;
 
-		private Vector2 tempVector2_;
-		private Quaternion tempQuaternion_;
+		/// <summary>
+		/// Indique si le calque est une référence.
+		/// </summary>
+		public bool IsReference_ { get; private set; }
 
-		public void SetupTranslationLayer(GameObject uiLayerObj_)
+		/// <summary>
+		/// Indique si le calquele calque est suprimable ou pas.
+		/// </summary>
+		public bool IsPermanent_ { get; private set; }
+
+		/// <summary>
+		/// Indique si le calque est déplacable.
+		/// </summary>
+		public bool IsMoveable_ { get; private set; }
+
+		/// <summary>
+		/// Vector2 temporaire.
+		/// </summary>
+		private Vector3 initialPosition_;
+
+		/// <summary>
+		/// Quaternion temporaire.
+		/// </summary>
+		private Quaternion initialRotation_;
+
+		// <summary>
+		/// Vector2 temporaire.
+		/// </summary>
+		private Vector3 initialScale_;
+
+		public void SetupTranslation()
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			tempVector2_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().GetPositionXY(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_]);
+			initialPosition_ = LayerObj_.transform.localPosition;
 		}
 
-		public void TranslateLayer(GameObject uiLayerObj_, Vector2 newPos_)
+		public void Translate(Vector2 pos_)
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			newPos_.x *= -1;
-			newPos_ += tempVector2_;
+			pos_.x *= -1;
 
-			uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().SetPositionXY(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_], newPos_);
+			LayerObj_.transform.localPosition = new Vector3(pos_.x + initialPosition_.x, pos_.y + initialPosition_.y, initialPosition_.z);
 		}
 
-		public void SetupRotationLayer(GameObject uiLayerObj_)
+		public void TranslateOnZ(GameObject layerObj_)
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			tempQuaternion_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().GetRotation(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_]);
+			var layerCameraAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var LayerWorkerObjAFLW_ = ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>().LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+
+			layerObj_.transform.localPosition = layerCameraAFCC_.Forward_ * ((layerObj_.transform.GetSiblingIndex() + 1) * LayerWorkerObjAFLW_.LayerOffset_ + layerCameraAFCC_.ClippingPlane_.near_);
 		}
 
-		public void RotateLayer(GameObject uiLayerObj_, float newAng_)
+		public void SetupRotation()
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			newAng_ *= -1;
-
-			uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().SetRotation(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_], tempQuaternion_ * Quaternion.AngleAxis(newAng_, Vector3.forward));
+			initialRotation_ = LayerObj_.transform.localRotation;
 		}
 
-		public void SetupScalingLayer(GameObject uiLayerObj_)
+		public void Rotate(float ang_)
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			tempVector2_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().GetComponent<AugmentedFaceCreatorLayerWorker>().GetScale(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_]);
+			ang_ *= -100f;
+
+			LayerObj_.transform.localRotation = Quaternion.AngleAxis(ang_, Vector3.forward) * initialRotation_;
 		}
 
-		public void ScaleLayer(GameObject uiLayerObj_, Vector2 newScale_)
+		public void SetupScaling()
 		{
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
 
-			uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().GetComponent<AugmentedFaceCreatorLayerWorker>().SetScale(uiObjectObjUIAFCO_.LayersObjs_[uiLayerObj_], newScale_ * tempVector2_);
+			initialScale_ = LayerObj_.transform.localScale;
+		}
+
+		public void Scale(Vector2 scale_)
+		{
+			if (IsReference_ || !IsMoveable_)
+			{
+				return;
+			}
+
+			scale_ *= 0.001f;
+			scale_.x++;
+			scale_.y++;
+
+			LayerObj_.transform.localScale = new Vector3(scale_.x * initialScale_.x, scale_.y * initialScale_.y, initialScale_.z);
+		}
+
+		/// <summary>
+		/// Avant le calque vers l'avant d'une unité.
+		/// </summary>
+		public void MoveForwardLayer()
+		{
+			var LayerWorkerObjAFCLW_ = ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>().LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+
+			var origin_ = LayerObj_.transform.GetSiblingIndex();
+			var target_ = Mathf.Clamp(origin_ - 1, 0, LayerWorkerObjAFCLW_.LayersObj_.transform.childCount - 1);
+
+			LayerObj_.transform.parent.GetChild(target_).SetSiblingIndex(origin_);
+			LayerObj_.transform.SetSiblingIndex(target_);
+			TranslateOnZ(LayerObj_.transform.parent.GetChild(origin_).gameObject);
+			TranslateOnZ(LayerObj_);
+
+			origin_ = transform.GetSiblingIndex();
+			target_ = Mathf.Clamp(origin_ - 1, 0, LayerWorkerObjAFCLW_.LayersObj_.transform.childCount - 1);
+			transform.parent.GetChild(target_).SetSiblingIndex(origin_);
+			transform.SetSiblingIndex(target_);
+		}
+
+		/// <summary>
+		/// Recule le calque vers l'arrière d'une unité.
+		/// </summary>
+		public void MoveBackwardLayer()
+		{
+			var LayerWorkerObjAFCLW_ = ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>().LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+
+			var origin_ = LayerObj_.transform.GetSiblingIndex();
+			var target_ = Mathf.Clamp(origin_ + 1, 0, LayerWorkerObjAFCLW_.LayersObj_.transform.childCount - 1);
+
+			LayerObj_.transform.parent.GetChild(target_).SetSiblingIndex(origin_);
+			LayerObj_.transform.SetSiblingIndex(target_);
+			TranslateOnZ(LayerObj_.transform.parent.GetChild(origin_).gameObject);
+			TranslateOnZ(LayerObj_);
+
+			origin_ = transform.GetSiblingIndex();
+			target_ = Mathf.Clamp(origin_ + 1, 0, LayerWorkerObjAFCLW_.LayersObj_.transform.childCount - 1);
+			transform.parent.GetChild(target_).SetSiblingIndex(origin_);
+			transform.SetSiblingIndex(target_);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		private void ShowHide()
+		{
+			LayerObj_.SetActive(!LayerObj_.activeSelf);
+
+			var buttonHideLayerObjC_ = ButtonHideLayerObj_.GetComponent<Image>();
+
+			if (LayerObj_.activeSelf)
+			{
+				buttonHideLayerObjC_.color = UISelection.unselected2_;
+			}
+			else
+			{
+				buttonHideLayerObjC_.color = UISelection.selected_;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Remove(GameObject uilayerObj_)
+		{
+			var uilayerObjAFCL_ = uilayerObj_.GetComponent<UIAugmentedFaceCreatorLayer>();
+
+#if UNITY_EDITOR
+			DestroyImmediate(uilayerObjAFCL_.LayerObj_);
+			DestroyImmediate(uilayerObj_);
+#else
+			Destroy(uilayerObjAFCL_.LayerObj_);
+			Destroy(uilayerObj_);
+#endif
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Remove()
+		{
+			if (IsReference_ || IsPermanent_)
+			{
+				return;
+			}
+
+			Remove(gameObject);
 		}
 
 		/// <summary>
@@ -107,14 +294,14 @@ namespace Assets.Scripts
 		/// </summary>
 		private void SetupButton()
 		{
-			var bodyLandscapeObjAFCBL_ = bodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
-			var uiObjectObjUIAFCO_ = UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			var bodyLandscapeObjAFCBL_ = BodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
+			var uiObjectObjUIAFCO_ = ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 			var uiObjectObjSR_ = uiObjectObjUIAFCO_.UILayersObj_.GetComponent<ScrollRect>(); ;
 			var uit_ = GetComponent<UITouch>();
-			var buttonRemoveLayerObjB_ = buttonRemoveLayerObj_.GetComponent<Button>();
-			var buttonHideLayerObjB_ = buttonHideLayerObj_.GetComponent<Button>();
-			var buttonMoveForwardObjB_ = buttonMoveForwardObj_.GetComponent<Button>();
-			var buttonMoveBackwardObjB_ = buttonMoveBackwardObj_.GetComponent<Button>();
+			var buttonRemoveLayerObjB_ = ButtonRemoveLayerObj_.GetComponent<Button>();
+			var buttonHideLayerObjB_ = ButtonHideLayerObj_.GetComponent<Button>();
+			var buttonMoveForwardObjB_ = ButtonMoveForwardObj_.GetComponent<Button>();
+			var buttonMoveBackwardObjB_ = ButtonMoveBackwardObj_.GetComponent<Button>();
 
 			uit_.BeginDrag += (e_, obj_) =>
 			{
@@ -140,65 +327,71 @@ namespace Assets.Scripts
 
 			buttonRemoveLayerObjB_.onClick.AddListener(() =>
 			{
-				uiObjectObjUIAFCO_.RemoveLayer(gameObject);
+				Remove();
 			});
 
 			buttonHideLayerObjB_.onClick.AddListener(() =>
 			{
-				uiObjectObjUIAFCO_.ShowHideLayer(gameObject);
+				ShowHide();
 			});
 
 			buttonMoveForwardObjB_.onClick.AddListener(() =>
 			{
-				uiObjectObjUIAFCO_.MoveForwardLayer(gameObject);
+				MoveForwardLayer();
 			});
 
 			buttonMoveBackwardObjB_.onClick.AddListener(() =>
 			{
-				uiObjectObjUIAFCO_.MoveBackwardLayer(gameObject);
+				MoveBackwardLayer();
 			});
 		}
 
 		/// <summary>
 		/// Intialise une nouvelle interface de calque.
 		/// </summary>
-		public void Initialize(string uiLayerName_, GameObject uiObjectObj_)
+		public void Initialize(GameObject layerObj_, bool isReference_, bool isPermanent_, bool isMoveable_)
 		{
-			this.UIObjectObj_ = uiObjectObj_;
+			LayerObj_ = layerObj_;
+
+			IsReference_ = isReference_;
+			IsPermanent_ = isPermanent_;
+			IsMoveable_ = isMoveable_;
 
 			// Objets enfants
-			canvasObj_ = GameObject.Find("Canvas");
-			bodyLandscapeObj_ = GameObject.Find("Body-Landscape");
-			layerNameObj_ = transform.Find("Text-Name").gameObject;
-			buttonRemoveLayerObj_ = transform.Find("Button-Remove").gameObject;
-			buttonHideLayerObj_ = transform.Find("Button-Hide").gameObject;
-			buttonMoveForwardObj_ = transform.Find("Button-MoveForward").gameObject;
-			buttonMoveBackwardObj_ = transform.Find("Button-MoveBackward").gameObject;
-
-			var bodyLandscapeObjUIBL_ = bodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
-			bodyLandscapeObjUIBL_.Draw += DrawUI;
+			var bodyLandscapeObjUIBL_ = BodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
+			bodyLandscapeObjUIBL_.DrawUI += Draw;
 			bodyLandscapeObjUIBL_.ForceDraw();
 
-			var layerNameObjT_ = layerNameObj_.GetComponentInChildren<Text>();
-			layerNameObjT_.text = uiLayerName_;
+			var layerNameObjT_ = LayerNameObj_.GetComponentInChildren<Text>();
+			layerNameObjT_.text = $"Layer-{layerObj_.transform.GetSiblingIndex():D3}";
 
 			SetupButton();
+
+			if (isReference_)
+			{
+				if (ReferenceLayerObj_ != null)
+				{
+					Remove(ReferenceLayerObj_);
+				}
+
+				ReferenceLayerObj_ = gameObject;
+			}
 		}
 
 		/// <summary>
 		/// Dessine l'interface utilisateur.
 		/// </summary>
-		private void DrawUI(float scale_)
+		private void Draw(float scale_)
 		{
 			// Composants
-			var bodyLandscapeObjUIBL_ = bodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
+			var bodyLandscapeObjUIBL_ = BodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
 			var rt_ = GetComponent<RectTransform>();
-			var nameObjRT_ = layerNameObj_.GetComponent<RectTransform>();
-			var nameObjT_ = layerNameObj_.GetComponentInChildren<Text>();
-			var buttonRemoveObjRT_ = buttonRemoveLayerObj_.GetComponent<RectTransform>();
-			var buttonHideObjRT_ = buttonHideLayerObj_.GetComponent<RectTransform>();
-			var buttonMoveForwardObjRT_ = buttonMoveForwardObj_.GetComponent<RectTransform>();
-			var buttonMoveBackwardObjRT_ = buttonMoveBackwardObj_.GetComponent<RectTransform>();
+			var nameObjRT_ = LayerNameObj_.GetComponent<RectTransform>();
+			var nameObjT_ = LayerNameObj_.GetComponentInChildren<Text>();
+			var buttonRemoveObjRT_ = ButtonRemoveLayerObj_.GetComponent<RectTransform>();
+			var buttonHideObjRT_ = ButtonHideLayerObj_.GetComponent<RectTransform>();
+			var buttonMoveForwardObjRT_ = ButtonMoveForwardObj_.GetComponent<RectTransform>();
+			var buttonMoveBackwardObjRT_ = ButtonMoveBackwardObj_.GetComponent<RectTransform>();
 
 			// Constantes
 			if (scale_ > 0)
@@ -251,10 +444,9 @@ namespace Assets.Scripts
 			rt_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height_);
 		}
 
-		private void OnDestroy()
+		public void OnDestroy()
 		{
-			var bodyLandscapeObjUIBL_ = bodyLandscapeObj_.GetComponent<UIAugmentedFaceCreatorBodyLandscape>();
-			bodyLandscapeObjUIBL_.Draw -= DrawUI;
+			UIAugmentedFaceCreatorBodyLandscape.Instance_.DrawUI -= Draw;
 		}
 	}
 }

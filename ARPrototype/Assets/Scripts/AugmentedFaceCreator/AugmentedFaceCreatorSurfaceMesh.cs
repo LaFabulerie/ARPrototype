@@ -8,10 +8,6 @@ namespace Assets.Scripts
 	[RequireComponent(typeof(MeshCollider))]
 	public class AugmentedFaceCreatorSurfaceMesh : MonoBehaviour
 	{
-		private MeshFilter mf_;
-		private MeshRenderer mr_;
-		private MeshCollider mc_;
-
 		public Vector2 Size_ { get; private set; }
 
 		/// <summary>
@@ -64,22 +60,16 @@ namespace Assets.Scripts
 				new Vector2(1f, 1f)
 			});
 
-			mf_.mesh = mesh_;
-			mc_.sharedMesh = mesh_;
+			GetComponent<MeshFilter>().mesh = mesh_;
+			GetComponent<MeshCollider>().sharedMesh = mesh_;
 
 			IsInitialized_ = true;
 		}
 
 		public void ChangeTexture(Texture2D texture_)
 		{
-			mr_.material.mainTexture = texture_;
-		}
 
-		private void OnEnable()
-		{
-			mf_ = GetComponent<MeshFilter>();
-			mr_ = GetComponent<MeshRenderer>();
-			mc_ = GetComponent<MeshCollider>();
+			GetComponent<MeshRenderer>().material.mainTexture = texture_;
 		}
 	}
 }

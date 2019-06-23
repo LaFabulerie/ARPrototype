@@ -6,12 +6,18 @@ namespace Assets.Scripts
 {
 	public class AugmentedFaceCreatorMeshWorker : MonoBehaviour
 	{
-		private GameObject cameraObj_;
+		/// <summary>
+		/// Gestionnaire de travailleur.
+		/// </summary>
+		public GameObject WorkerObj_
+		{
+			get => GameObject.Find("Worker");
+		}
 
 		/// <summary>
 		/// Objet du pivot.
 		/// </summary>
-		public GameObject PivotObj_ { get; private set; }
+		public GameObject PivotObj_ => transform.Find("Pivot").gameObject;
 
 		/// <summary>
 		/// Objet du maillage.
@@ -30,10 +36,8 @@ namespace Assets.Scripts
 		{
 			get
 			{
-				var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
-				var cameraObjC_ = cameraObjAFCC_.CameraObjC_;
-				var depthRange_ = cameraObjC_.farClipPlane - cameraObjC_.nearClipPlane;
-				return depthRange_;
+				var cameraObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+				return cameraObjAFCC_.CameraObjC_.farClipPlane - cameraObjAFCC_.CameraObjC_.nearClipPlane;
 			}
 		}
 
@@ -44,7 +48,7 @@ namespace Assets.Scripts
 		{
 			get
 			{
-				var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
+				var cameraObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
 				var min_ = cameraObjAFCC_.CameraObjC_.nearClipPlane * 1.001f;
 
@@ -54,7 +58,7 @@ namespace Assets.Scripts
 			{
 				var posRatio_ = Mathf.Clamp01(value);
 
-				var cameraObjAFCC_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>();
+				var cameraObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
 				PivotObj_.transform.localPosition = Vector3.forward * (cameraObjAFCC_.CameraObjC_.nearClipPlane * 1.001f + DepthRange_ * 0.999f * posRatio_);
 			}
@@ -68,6 +72,10 @@ namespace Assets.Scripts
 			get => !PivotObj_.activeSelf;
 		}
 
+		/// <summary>
+		/// Retourne les objets des ancres.
+		/// </summary>
+		/// <returns>Liste des objets des ancres.</returns>
 		public List<GameObject> GetAnchorObjs()
 		{
 			var anchorsObj_ = MeshObj_.transform.Find("Anchors");
@@ -81,6 +89,10 @@ namespace Assets.Scripts
 			return anchorsObjs_;
 		}
 
+		/// <summary>
+		/// Retourne les noms des ancres.
+		/// </summary>
+		/// <returns>Liste des noms des ancres.</returns>
 		public List<string> GetAnchorNames_()
 		{
 			var anchorsObjs_ = GetAnchorObjs();
@@ -89,6 +101,11 @@ namespace Assets.Scripts
 					select anchorsObj_.name).ToList();
 		}
 
+		/// <summary>
+		/// Retourne la position par rapport à une ancre.
+		/// </summary>
+		/// <param name="anchorsObj_">Objet portant l'ancre.</param>
+		/// <returns>Décalage par rapport à l'objet.</returns>
 		public Vector3 GetPositionOffset(GameObject anchorsObj_)
 		{
 			var referencePivot_ = anchorsObj_.transform.parent.parent.parent;
@@ -102,63 +119,20 @@ namespace Assets.Scripts
 			return to_ - PivotObj_.transform.localPosition;
 		}
 
-		public Vector2 GetDim()
-		{
-			var meshObjAFCSM_ = MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
-
-			if (meshObjAFCSM_ == null)
-			{
-				return Vector2.zero;
-			}
-
-			return meshObjAFCSM_.Size_;
-		}
-
-		/// <summary>
-		/// Retourne la position de l'objet sur le plan XY.
-		/// </summary>
-		/// <returns>Position sur le plan XY.</returns>
-		public Vector2 GetPositionXY()
-		{
-			return PivotObj_.transform.position;
-		}
-
-		/// <summary>
-		/// Retourne l'angle de l'objet sur le plan XY.
-		/// </summary>
-		/// <returns>Angle sur le plan XY.</returns>
-		public Quaternion GetRotation()
-		{
-			return PivotObj_.transform.localRotation;
-		}
-
-		/// <summary>
-		/// Retourne l'échelle de l'objet sur le plan XY.
-		/// </summary>
-		/// <returns>Angle sur le plan XY.</returns>
-		public Vector2 GetScale()
-		{
-			return PivotObj_.transform.localScale;
-		}
-
 		/// <summary>
 		/// Initialise.
 		/// </summary>
-		/// <param name="isPermanent_">Indique si l'objet restera permanent.</param>
-		/// <param name="cameraObj_">Objet possédant la caméra.</param>
-		/// <param name="meshObj_">Objet possédant le maillage.</param>
-		/// <param name="posRatio_">Ratio de la position.</param>
-		public void Initialize(GameObject cameraObj_, GameObject meshObj_, Vector3 localDir_, float posRatio_)
+		/// <param name="meshObj_">Objet portant le maillage.</param>
+		/// <param name="dir_">Objet possédant le maillage.</param>
+		/// <param name="zRatio_">Ratio de la position.</param>
+		public void Initialize(GameObject meshObj_, float zRatio_)
 		{
-			this.cameraObj_ = cameraObj_;
+			name = $"MeshWorker-{transform.GetSiblingIndex():D3}";
 
-			MeshObj_ = Instantiate(meshObj_, PivotObj_.transform);
-			MeshObj_.transform.localPosition = Vector3.zero;
-			MeshObj_.transform.localRotation = Quaternion.LookRotation(localDir_, Vector3.up);
-			MeshObj_.transform.localScale = Vector3.one;
+			MeshObj_ = Instantiate(meshObj_, Vector3.zero, Quaternion.LookRotation(Vector3.forward, Vector3.up), PivotObj_.transform);
 			MeshObj_.name = "Mesh";
 
-			PosRatio_ = posRatio_;
+			PosRatio_ = zRatio_;
 
 			IsInitialized_ = true;
 		}
@@ -173,8 +147,8 @@ namespace Assets.Scripts
 			var meshMin_ = meshObjMC_.bounds.min;
 			var meshMax_ = meshObjMC_.bounds.max;
 
-			var cameraMin_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>().MinimumBounds_;
-			var cameraMax_ = cameraObj_.GetComponent<AugmentedFaceCreatorCamera>().MaximumBounds_;
+			var cameraMin_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().MinimumBounds_;
+			var cameraMax_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().MaximumBounds_;
 
 
 			if (meshMin_.x <= 0 && meshMin_.y <= 0 &&
@@ -195,9 +169,7 @@ namespace Assets.Scripts
 					cameraMax_.y / meshMax_.y
 				);
 
-			var scale_ = Mathf.Min(minRatio_.x, minRatio_.y, maxRatio_.x, maxRatio_.y);
-
-			Debug.Log($"{cameraMax_} {cameraMin_} {meshMin_} {meshMax_} {minRatio_} {maxRatio_}");
+			var scale_ = Mathf.Abs(Mathf.Min(minRatio_.x, minRatio_.y, maxRatio_.x, maxRatio_.y));
 
 			PivotObj_.transform.localScale *= scale_;
 
@@ -208,34 +180,6 @@ namespace Assets.Scripts
 		}
 
 		/// <summary>
-		/// Définit la position du maillage sur le plan XY.
-		/// </summary>
-		/// <param name="x_">Position de x dans l'espace mondial.</param>
-		/// <param name="y_">Position de y dans l'espace mondial.</param>
-		public void SetPositionXY(float x_, float y_)
-		{
-			PivotObj_.transform.localPosition = new Vector3(x_, y_, PivotObj_.transform.localPosition.z);
-		}
-
-		/// <summary>
-		/// Définit la rotation du maillage sur le plan XY.
-		/// </summary>
-		/// <param name="rotation_">Rotation.</param>
-		public void SetRotation(Quaternion rotation_)
-		{
-			PivotObj_.transform.localRotation = rotation_;
-		}
-
-		/// <summary>
-		/// Définit la mise à l'échelle du maillage sur le plan XY.
-		/// </summary>
-		/// <param name="scale_">Echelle.</param>
-		public void SetScale(Vector2 scale_)
-		{
-			PivotObj_.transform.localScale = new Vector3(scale_.x, scale_.y, PivotObj_.transform.localScale.z);
-		}
-
-		/// <summary>
 		/// Définit la texture sur le maillage. 
 		/// </summary>
 		/// <param name="texture_">Texture à appliquer.</param>
@@ -243,27 +187,6 @@ namespace Assets.Scripts
 		{
 			var mr_ = MeshObj_.GetComponent<MeshRenderer>();
 			mr_.material.mainTexture = texture_;
-		}
-
-		/// <summary>
-		/// Masque le maillage de l'objet.
-		/// </summary>
-		public void Hide()
-		{
-			PivotObj_.SetActive(false);
-		}
-
-		/// <summary>
-		/// Montre le maillage de l'objet.
-		/// </summary>
-		public void Show()
-		{
-			PivotObj_.SetActive(true);
-		}
-
-		private void OnEnable()
-		{
-			PivotObj_ = transform.Find("Pivot").gameObject;
 		}
 	}
 }

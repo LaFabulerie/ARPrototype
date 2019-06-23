@@ -29,7 +29,7 @@ namespace Assets.Scripts
 		public Vector2 Dimension_ { get; set; }
 
 		[DataMember()]
-		public string MeshAssetPath_ { get; set; }
+		public string MeshObjName_ { get; set; }
 
 		[DataMember()]
 		public int TextureWidth_ { get; set; }

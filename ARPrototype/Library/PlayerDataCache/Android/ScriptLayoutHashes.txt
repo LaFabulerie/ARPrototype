@@ -1,6 +1,6 @@
 Android
 PlayerPath?
-C:/Users/Nicolas/Documents/MACN1/Stage_Fabulerie/App/LaFabulerieARPrototype/Android-Output/LaFabulerieARPrototype.apk
+C:/Users/Nicolas/Documents/MACN1/Stage_Fabulerie/Github/ARPrototype/ARPrototype/Output-Android/ARPrototype.apk
 SceneListBegin?
 Assets/Scenes/MainMenu.unity
 Assets/Scenes/AugmentedImage.unity
@@ -125,7 +125,7 @@ e1bbf0ab858085e38fae6b12ebbdcd35 UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 e1bbf0ab858085e38fae6b12ebbdcd35 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 e1bbf0ab858085e38fae6b12ebbdcd35 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 201e3fde670b00545944bb3db215c80a UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-4a09fbe840f2b72f84aa902f5241325a Assembly-CSharp.dll:Assets.Scripts.UIAugmentedFaceCreatorBodyLandscape
+46ebe57ba7e25f28b867f3845603fa11 Assembly-CSharp.dll:Assets.Scripts.UIAugmentedFaceCreatorBodyLandscape
 bc36cfe008859a4f07b3da2ff0b5e005 Assembly-CSharp.dll:GoogleARCore.Examples.AugmentedFaces.AugmentedFacesExampleController
 00274a21279f5cb831ce20f895049e38 Unity.TextMeshPro.dll:TMPro.TMP_SubMeshUI
 a72b59fc029116362b3317d54b5ec7e0 Assembly-CSharp.dll:.TiltWindow
@@ -235,9 +235,7 @@ fbbf64dcbe0662e3eda1dec45ea8f895 Vuforia.UnityExtensions.dll:Vuforia.WireframeBe
 35fa1eced6c5453850fd77f820d57527 Assembly-CSharp.dll:.UnityEyeManager
 58a97b33b239f0d3d6fac1e0d9752da9 Assembly-CSharp.dll:Assets.Scripts.UICanvasScaler
 b818207c0b8a805931f7a7989870283e Assembly-CSharp.dll:GoogleARCore.ARCoreBackgroundRenderer
-f876fedc8f8f0f2595b7c97753884629 Assembly-CSharp.dll:Assets.Scripts.ImageLayerWorker
 b3ab2106268377ffe25dd18ac23dca28 Unity.TextMeshPro.dll:TMPro.TMP_Asset
-62e8c316bd183900c880eaeaf099664b Assembly-CSharp.dll:Assets.Scripts.ImageLayer
 b85846f48e1ece0b134e0e1251b6301d Assembly-CSharp.dll:UnityEngine.XR.iOS.UnityRemoteVideo
 836678629aa75f53ba8258cf6e7bf710 Assembly-CSharp.dll:Assets.Scripts.UIReturnButtonManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:Assets.Scripts.UIMainMenuButton
@@ -249,7 +247,6 @@ b85846f48e1ece0b134e0e1251b6301d Assembly-CSharp.dll:UnityEngine.XR.iOS.UnityRem
 9861de3bc26572caf0461de8b54151b6 Assembly-CSharp.dll:Assets.Scripts.AugmentedImageManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:UnityEngine.XR.iOS.UnityARAmbient
 71bb6a6b6c8f052f948db64c7dd3ca4f Unity.Analytics.Editor.dll:UnityEditor.Analytics.AnalyticsEventTrackerEditor
-b2419133542fb77e1b57c60a6c548e81 Assembly-CSharp.dll:Assets.Scripts.AugmentedFaceCreatorWorkerOld
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.BlendshapeDriver
 e80052be6f994349516ef119502d9146 Assembly-CSharp.dll:.SVBoxSlider
 3ad5f53ce814676a5bba4633d35a5683 Assembly-CSharp.dll:.UnityARFaceAnchorManager
@@ -308,7 +305,7 @@ c5aac9840150e4d733d13022980723e5 Assembly-CSharp.dll:GoogleARCore.ARCoreSession
 259d013faac28e8ba0aa2a7542273735 UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.PlaymodeTestsController
 71bb6a6b6c8f052f948db64c7dd3ca4f UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender
 71bb6a6b6c8f052f948db64c7dd3ca4f UnityEngine.TestRunner.dll:UnityEngine.TestTools.TestRunner.Callbacks.TestResultRendererCallback
-76c27a5e121b9058123d23e5f69ee6c7 Assembly-CSharp.dll:Assets.Scripts.UIAugmentedFaceCreatorLayer
+d07ecd888de6bbf19e6aa8a0a85b49d3 Assembly-CSharp.dll:Assets.Scripts.UIAugmentedFaceCreatorLayer
 1631ec64b250f10a55aac6295ebd439d Assembly-CSharp.dll:UnityEngine.XR.iOS.ARKitRemoteConnection
 931f489e44eadf809e9310429c99dde5 UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioListenerExtension
 fb6a1ea36b4f6ef5948d283d93760765 UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom

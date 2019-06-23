@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using UnityEditor;
@@ -14,80 +12,20 @@ namespace Assets.Scripts
 	[ExecuteAlways()]
 	public class UIAugmentedFaceCreatorBodyLandscape : MonoBehaviour
 	{
-		[SerializeField]
-		private Text Debug_;
-
-		private GameObject canvasObj_;
-
-		// Objets enfants
-		private GameObject backgroundObj_;
-		private GameObject leftPanelObj_;
-		private GameObject leftPanelScrollViewObj_;
-		private GameObject leftPanelScrollViewContentObj_;
-		private GameObject buttonResetObj_;
-		private GameObject buttonTranslateObj_;
-		private GameObject buttonRotateObj_;
-		private GameObject buttonScaleObj_;
-		private GameObject rightPanelObj_;
-		private GameObject rightPanelHandleObj_;
-		private GameObject buttonCancelObj_;
-		private GameObject inputFieldNameObj_;
-		private GameObject buttonOkObj_;
-		private GameObject buttonAddObjectObj_;
-		private GameObject scrollViewObjectsObj_;
-		private GameObject scrollViewObjectsContentObj_;
-		private GameObject viewerPanelObj_;
-		private GameObject sliderVerticalObj_;
-
-		/// <summary>
-		/// Largeur du panneau de droite avant transformation mis à l'échelle.
-		/// </summary>
-		private float beginRightPanelWidth_;
-
-		/// <summary>
-		/// Taille des surfaces à toucher mis à l'échelle mis à l'échelle.
-		/// </summary>
-		private Vector2 scaledTouchSurfaceSize_;
-
-		/// <summary>
-		/// Taille des surfaces à toucher mis à l'échelle mis à l'échelle.
-		/// </summary>
-		private float scaledRightPanelWidth_;
-
-		/// <summary>
-		/// Taille des marges mis à l'échelle.
-		/// </summary>
-		private float scaledMarginSize_;
-
-		/// <summary>
-		/// Taille des marges mis à l'échelle.
-		/// </summary>
-		private int scaledBodyFontSize_;
-
-		/// <summary>
-		/// Indique si le composant est initialisé.
-		/// </summary>
-		private bool isInitialized_;
-
-		/// <summary>
-		/// Liste des d'objets de maillage d'interface.
-		/// </summary>
-		private Dictionary<string, GameObject> uiObjectsObjs_;
-
 		/// <summary>
 		/// Vector2 temporaire.
 		/// </summary>
-		private Vector2 tempVector2_;
+		private Vector2 translationInitialPosition_;
 
 		/// <summary>
 		/// Nombre flotant temporaire.
 		/// </summary>
-		private float tempFloat_;
+		private float rotationAng_;
 
 		/// <summary>
 		/// Direction cardinale temporaire.
 		/// </summary>
-		private UIDragDirection tempDragDirection_;
+		private UIDragDirection scalingCardDir_;
 
 		/// <summary>
 		/// Taille des surfaces à toucher.
@@ -114,22 +52,16 @@ namespace Assets.Scripts
 		private int bodyfontSize_;
 
 		/// <summary>
-		/// Objet de travail principal.
-		/// </summary>
-		[SerializeField]
-		private GameObject workerObj_;
-
-		/// <summary>
 		/// Préfabriqué d'un objet de maillage d'interface.
 		/// </summary>
 		[SerializeField]
-		private GameObject uiObjectObj_;
+		private GameObject uiObjectPrefab_;
 
 		/// <summary>
 		/// Préfabriqué du maillage du vissage.
 		/// </summary>
 		[SerializeField]
-		private GameObject faceMeshPrefab_;
+		private GameObject referenceMeshPrefab_;
 
 		/// <summary>
 		/// Préfabriqué du maillage de surface.
@@ -144,49 +76,163 @@ namespace Assets.Scripts
 		private List<GameObject> objectsPrefabs_;
 
 		/// <summary>
-		/// Largeur de la vue.
+		/// Texture de référence du maillage de référence.
 		/// </summary>
-		private float viewerPanelObjWidth_;
+		[SerializeField]
+		private Texture2D referenceLayer_;
+
+		public static UIAugmentedFaceCreatorBodyLandscape Instance_ { get; private set; }
 
 		/// <summary>
-		/// Hauteur de la vue.
+		/// Taille de la vue.
 		/// </summary>
-		private float viewerPanelObjHeight_;
+		public float ViewerPanelObjWidth_ { get; set; }
+
+		/// <summary>
+		/// Taille de la vue.
+		/// </summary>
+		public float ViewerPanelObjHeight_ { get; set; }
 
 		/// <summary>
 		/// Position sur l'axe X de la vue.
 		/// </summary>
-		private float viewerPanelObjXOffset_;
+		public float ViewerPanelObjXOffset_ { get; set; }
 
 		/// <summary>
-		/// Position sur l'axe Y de la vue.
+		/// Position sur l'axe X de la vue.
 		/// </summary>
-		private float viewerPanelObjYOffset_;
+		public float ViewerPanelObjYOffset_ { get; set; }
 
 		/// <summary>
-		/// Objet de référence contenant l'interface du maillage du vissage.
+		/// 
 		/// </summary>
-		public GameObject UIObject000Obj_ { get; private set; }
+		public GameObject CanvasObj_ => GameObject.Find("Canvas");
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject WorkerObj_ => GameObject.Find("Worker");
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject BackgroundObj_ => transform.Find("Background").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject LeftPanelObj_ => transform.Find("LeftPanel").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject LeftPanelScrollViewObj_ => LeftPanelObj_.transform.Find("ScrollView").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject LeftPanelScrollViewContentObj_ => LeftPanelScrollViewObj_.transform.Find("Viewport").Find("Content").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonResetObj_ => LeftPanelScrollViewContentObj_.transform.Find("Button-Reset").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonTranslateObj_ => LeftPanelScrollViewContentObj_.transform.Find("Button-Translate").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonRotateObj_ => LeftPanelScrollViewContentObj_.transform.Find("Button-Rotate").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonScaleObj_ => LeftPanelScrollViewContentObj_.transform.Find("Button-Scale").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject RightPanelObj_ => transform.Find("RightPanel").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject RightPanelHandleObj_ => RightPanelObj_.transform.Find("RightPanelHandle").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonCancelObj_ => RightPanelObj_.transform.Find("Button-Cancel").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject InputFieldNameObj_ => RightPanelObj_.transform.Find("InputField-Name").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonOkObj_ => RightPanelObj_.transform.Find("Button-Ok").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ButtonAddObjectObj_ => RightPanelObj_.transform.Find("Button-AddObject").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ScrollViewObjectsObj_ => RightPanelObj_.transform.Find("ScrollView-Objects").gameObject;
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ScrollViewObjectsContentObj_ => ScrollViewObjectsObj_.transform.Find("Viewport").Find("Content").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject ViewerPanelObj_ => transform.Find("ViewerPanel").gameObject;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public GameObject SliderVerticalObj_ => ViewerPanelObj_.transform.Find("SliderVertical").gameObject;
 
 		/// <summary>
 		/// Taille des surfaces à toucher mis à l'échelle mis à l'échelle.
 		/// </summary>
-		public Vector2 ScaledTouchSurfaceSize_ { get => scaledTouchSurfaceSize_; }
+		public Vector2 ScaledTouchSurfaceSize_ { get; private set; }
 
 		/// <summary>
 		/// Taille des surfaces à toucher mis à l'échelle mis à l'échelle.
 		/// </summary>
-		public float ScaledRightPanelWidth_ { get => scaledRightPanelWidth_; }
+		public float ScaledRightPanelWidth_ { get; private set; }
 
 		/// <summary>
 		/// Taille des marges mis à l'échelle.
 		/// </summary>
-		public float ScaledMarginSize_ { get => scaledMarginSize_; }
+		public float ScaledMarginSize_ { get; set; }
 
 		/// <summary>
-		/// Liste contenant les objets.
+		/// Largeur du panneau de droite avant transformation mis à l'échelle.
 		/// </summary>
-		public GameObject ScrollViewObjectsObj_ { get => scrollViewObjectsObj_; }
+		public float BeginRightPanelWidth_ { get; private set; }
+
+		/// <summary>
+		/// Taille des marges mis à l'échelle.
+		/// </summary>
+		public int ScaledBodyFontSize_ { get; private set; }
+
+		/// <summary>
+		/// Indique si le composant est initialisé.
+		/// </summary>
+		public bool IsInitialized_ { get; private set; }
 
 		/// <summary>
 		/// Action de l'utilisateur en cours.
@@ -194,14 +240,19 @@ namespace Assets.Scripts
 		public UIUserAction CurrentUserAction_ { get; private set; }
 
 		/// <summary>
-		/// Evenement à appeler pour intialiser chaque enfant.
+		/// Travailleur de maillage actuel.
 		/// </summary>
-		public event Action Initialize;
+		public GameObject CurrentMeshWokerObj_ { get; private set; }
 
 		/// <summary>
-		/// Evenement à appeler pour intialiser chaque enfant.
+		/// Travailleur de calque actuel.
 		/// </summary>
-		public event Action<float> Draw;
+		public GameObject CurrentLayerWokerObj_ { get; private set; }
+
+		/// <summary>
+		/// Appeler lorsque des éléments enfants doivent être dessinner.
+		/// </summary>
+		public event Action<float> DrawUI;
 
 		/// <summary>
 		/// Débute le redimensionnement du panneaux de droite. 
@@ -209,7 +260,7 @@ namespace Assets.Scripts
 		/// <param name="pos_">Position du curseur.</param>
 		private void OneBeginDragOnRightPanelHandleObj(Vector2 pos_)
 		{
-			beginRightPanelWidth_ = Screen.width - pos_.x - rightPanelObj_.GetComponent<RectTransform>().sizeDelta.x;
+			BeginRightPanelWidth_ = Screen.width - pos_.x - RightPanelObj_.GetComponent<RectTransform>().sizeDelta.x;
 		}
 
 		/// <summary>
@@ -221,15 +272,14 @@ namespace Assets.Scripts
 		/// <param name="dir_">Direction cardinale du curseur.</param>
 		private void OneDragOnRightPanelHandleObj(Vector2 pos_, Vector2 dirNorm_, float mag_, UIDragDirection dir_)
 		{
-			var rightPanelHandleObjRT_ = rightPanelHandleObj_.GetComponent<RectTransform>();
-			var leftPanelObjRT_ = leftPanelObj_.GetComponent<RectTransform>();
+			var leftPanelObjRT_ = LeftPanelObj_.GetComponent<RectTransform>();
 
-			var min_ = rightPanelWidth_ * canvasObj_.GetComponent<UICanvasScaler>().Scale_;
-			var max_ = Screen.width - leftPanelObjRT_.sizeDelta.x - scaledTouchSurfaceSize_.x * 0.5f;
+			var min_ = rightPanelWidth_ * CanvasObj_.GetComponent<UICanvasScaler>().Scale_;
+			var max_ = Screen.width - leftPanelObjRT_.sizeDelta.x - ScaledTouchSurfaceSize_.x * 0.5f;
 
-			scaledRightPanelWidth_ = Mathf.Clamp(Screen.width - pos_.x - beginRightPanelWidth_, min_, max_);
+			ScaledRightPanelWidth_ = Mathf.Clamp(Screen.width - pos_.x - BeginRightPanelWidth_, min_, max_);
 
-			DrawUI(0f);
+			Draw(0f);
 		}
 
 		private void SetupTranslation(Vector2 pos_)
@@ -254,15 +304,15 @@ namespace Assets.Scripts
 					return;
 				}
 
-				tempVector2_ = pos_;
+				translationInitialPosition_ = pos_;
 
-				currentSelectedObjectObjUIAFCO_.SetupTranslationObject();
+				currentSelectedObjectObjUIAFCO_.SetupTranslation();
 			}
 			else if (currentSelectedObjectObjUIAFCL_ != null)
 			{
-				tempVector2_ = pos_;
+				translationInitialPosition_ = pos_;
 
-				currentSelectedObjectObjUIAFCL_.SetupTranslationLayer(UISelection.CurrentSelectionObj_);
+				currentSelectedObjectObjUIAFCL_.SetupTranslation();
 			}
 		}
 
@@ -281,18 +331,17 @@ namespace Assets.Scripts
 			var currentSelectedObjectObjUIAFCO_ = UISelection.CurrentSelectionObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 			var currentSelectedObjectObjUIAFCL_ = UISelection.CurrentSelectionObj_.GetComponent<UIAugmentedFaceCreatorLayer>();
 
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
-			var meshCameraPivotObjAFCC_ = workerObjAFCW_.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var meshCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
-			if (pos_.x >= viewerPanelObjXOffset_ &&
-				pos_.x <= viewerPanelObjXOffset_ + viewerPanelObjWidth_ &&
-				pos_.y >= viewerPanelObjYOffset_ &&
-				pos_.y <= viewerPanelObjYOffset_ + viewerPanelObjHeight_)
+			if (pos_.x >= ViewerPanelObjXOffset_ &&
+				pos_.x <= ViewerPanelObjXOffset_ + ViewerPanelObjWidth_ &&
+				pos_.y >= ViewerPanelObjYOffset_ &&
+				pos_.y <= ViewerPanelObjYOffset_ + ViewerPanelObjHeight_)
 			{
-				pos_ -= tempVector2_;
+				pos_ -= translationInitialPosition_;
 
-				pos_.x /= viewerPanelObjWidth_ + viewerPanelObjXOffset_;
-				pos_.y /= viewerPanelObjHeight_ + viewerPanelObjYOffset_;
+				pos_.x /= ViewerPanelObjWidth_ + ViewerPanelObjXOffset_;
+				pos_.y /= ViewerPanelObjHeight_ + ViewerPanelObjYOffset_;
 				pos_ *= meshCameraPivotObjAFCC_.RectBounds_.size;
 
 				if (currentSelectedObjectObjUIAFCO_ != null)
@@ -302,11 +351,11 @@ namespace Assets.Scripts
 						return;
 					}
 
-					currentSelectedObjectObjUIAFCO_.TranslateObject(pos_);
+					currentSelectedObjectObjUIAFCO_.Translate(pos_);
 				}
 				else if (currentSelectedObjectObjUIAFCL_ != null)
 				{
-					currentSelectedObjectObjUIAFCL_.TranslateLayer(UISelection.CurrentSelectionObj_, pos_);
+					currentSelectedObjectObjUIAFCL_.Translate(pos_);
 				}
 			}
 		}
@@ -333,15 +382,15 @@ namespace Assets.Scripts
 					return;
 				}
 
-				currentSelectedObjectObjUIAFCO_.SetupRotationObject();
+				currentSelectedObjectObjUIAFCO_.SetupRotation();
 
-				tempFloat_ = ang_;
+				rotationAng_ = ang_;
 			}
 			else if (currentSelectedObjectObjUIAFCL_ != null)
 			{
-				currentSelectedObjectObjUIAFCL_.SetupRotationLayer(UISelection.CurrentSelectionObj_);
+				currentSelectedObjectObjUIAFCL_.SetupRotation();
 
-				tempFloat_ = ang_;
+				rotationAng_ = ang_;
 			}
 		}
 
@@ -373,13 +422,11 @@ namespace Assets.Scripts
 					return;
 				}
 
-				ang_ *= 100f;
-				currentSelectedObjectObjUIAFCO_.RotateObject(ang_);
+				currentSelectedObjectObjUIAFCO_.Rotate(ang_);
 			}
 			else if (currentSelectedObjectObjUIAFCL_ != null)
 			{
-				ang_ *= 100f;
-				currentSelectedObjectObjUIAFCL_.RotateLayer(UISelection.CurrentSelectionObj_, ang_);
+				currentSelectedObjectObjUIAFCL_.Rotate(ang_);
 			}
 		}
 
@@ -405,13 +452,13 @@ namespace Assets.Scripts
 					return;
 				}
 
-				currentSelectedObjectObjUIAFCO_.SetupScalingObject();
-				tempDragDirection_ = cardDir_;
+				currentSelectedObjectObjUIAFCO_.SetupScaling();
+				scalingCardDir_ = cardDir_;
 			}
 			else if (currentSelectedObjectObjUIAFCL_ != null)
 			{
-				currentSelectedObjectObjUIAFCL_.SetupScalingLayer(UISelection.CurrentSelectionObj_);
-				tempDragDirection_ = cardDir_;
+				currentSelectedObjectObjUIAFCL_.SetupScaling();
+				scalingCardDir_ = cardDir_;
 			}
 		}
 
@@ -437,46 +484,40 @@ namespace Assets.Scripts
 					return;
 				}
 
-				mag2_ *= 0.001f;
-				mag2_++;
-
 				if (cardDir2_ == UIDragDirection.Up ||
 					cardDir2_ == UIDragDirection.Down)
 				{
-					currentSelectedObjectObjUIAFCO_.ScaleObject(new Vector2(1f, mag2_));
+					currentSelectedObjectObjUIAFCO_.Scale(new Vector2(1f, mag2_));
 				}
 
 				if (cardDir2_ == UIDragDirection.Left ||
 					cardDir2_ == UIDragDirection.Right)
 				{
-					currentSelectedObjectObjUIAFCO_.ScaleObject(new Vector2(mag2_, 1f));
+					currentSelectedObjectObjUIAFCO_.Scale(new Vector2(mag2_, 1f));
 				}
 
 				if (cardDir2_ == UIDragDirection.Angle)
 				{
-					currentSelectedObjectObjUIAFCO_.ScaleObject(new Vector2(mag2_, mag2_));
+					currentSelectedObjectObjUIAFCO_.Scale(new Vector2(mag2_, mag2_));
 				}
 			}
 			else if (currentSelectedObjectObjUIAFCL_ != null)
 			{
-				mag2_ *= 0.001f;
-				mag2_++;
-
 				if (cardDir2_ == UIDragDirection.Up ||
 					cardDir2_ == UIDragDirection.Down)
 				{
-					currentSelectedObjectObjUIAFCL_.ScaleLayer(UISelection.CurrentSelectionObj_, new Vector2(1f, mag2_));
+					currentSelectedObjectObjUIAFCL_.Scale(new Vector2(1f, mag2_));
 				}
 
 				if (cardDir2_ == UIDragDirection.Left ||
 					cardDir2_ == UIDragDirection.Right)
 				{
-					currentSelectedObjectObjUIAFCL_.ScaleLayer(UISelection.CurrentSelectionObj_, new Vector2(mag2_, 1f));
+					currentSelectedObjectObjUIAFCL_.Scale(new Vector2(mag2_, 1f));
 				}
 
 				if (cardDir2_ == UIDragDirection.Angle)
 				{
-					currentSelectedObjectObjUIAFCL_.ScaleLayer(UISelection.CurrentSelectionObj_, new Vector2(mag2_, mag2_));
+					currentSelectedObjectObjUIAFCL_.Scale(new Vector2(mag2_, mag2_));
 				}
 			}
 		}
@@ -487,13 +528,13 @@ namespace Assets.Scripts
 		private void SetupTouch()
 		{
 			// Composants du panneau droit
-			var rightPanelHandleObjUIT_ = rightPanelHandleObj_.GetComponent<UITouch>();
+			var rightPanelHandleObjUIT_ = RightPanelHandleObj_.GetComponent<UITouch>();
 
 			rightPanelHandleObjUIT_.OneBeginDrag += OneBeginDragOnRightPanelHandleObj;
 			rightPanelHandleObjUIT_.OneDrag += OneDragOnRightPanelHandleObj;
 
 			// Composants du panneau de vue
-			var viewerPanelObjUIT_ = viewerPanelObj_.GetComponent<UITouch>();
+			var viewerPanelObjUIT_ = ViewerPanelObj_.GetComponent<UITouch>();
 
 			// Avec un doigt : tranlation (objet et texture)
 			viewerPanelObjUIT_.OneBeginDrag += SetupTranslation;
@@ -513,13 +554,13 @@ namespace Assets.Scripts
 		private void ResetTouchEvents()
 		{
 			// Composants du panneau droit
-			var rightPanelHandleObjUIT_ = rightPanelHandleObj_.GetComponent<UITouch>();
+			var rightPanelHandleObjUIT_ = RightPanelHandleObj_.GetComponent<UITouch>();
 
 			rightPanelHandleObjUIT_.OneBeginDrag -= OneBeginDragOnRightPanelHandleObj;
 			rightPanelHandleObjUIT_.OneDrag -= OneDragOnRightPanelHandleObj;
 
 			// Composants du panneau de vue
-			var viewerPanelObjUIT_ = viewerPanelObj_.GetComponent<UITouch>();
+			var viewerPanelObjUIT_ = ViewerPanelObj_.GetComponent<UITouch>();
 
 			// Avec un doigt : tranlation (objet et texture)
 			viewerPanelObjUIT_.OneBeginDrag -= SetupTranslation;
@@ -542,70 +583,48 @@ namespace Assets.Scripts
 		/// <param name="resize_">Force l'objet à être redimensionner à la largeur de l'écran.</param>
 		/// <param name="hide_">Masque l'objet.</param>
 		/// <returns></returns>
-		public GameObject AddUIObject(GameObject meshPrefab_, float posRatio_, bool isReference_, bool isPermanent_, bool isMoveable_, bool resize_, bool hide_)
+		public GameObject AddObject(GameObject meshPrefab_, float posRatio_, bool isReference_, bool isPermanent_, bool isMoveable_, bool resize_, bool hide_)
 		{
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
+			var workerObjAFCW_ = AugmentedFaceCreatorWorker.Instance_;
 
-			var newUIObjectObj_ = Instantiate(uiObjectObj_, Vector3.zero, Quaternion.identity, scrollViewObjectsContentObj_.transform);
-			var newUIObjectObjAFCUIO_ = newUIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-
-			var (index_, meshWorkerObj_, layerWorkerObj_) = workerObjAFCW_.AddSubWorker(meshPrefab_, isReference_ ? 0.5f : posRatio_);
-
-			var name_ = newUIObjectObjAFCUIO_.Initialize(index_, meshWorkerObj_, layerWorkerObj_, isReference_, isPermanent_, isMoveable_, "to detemrine");
-
-			var meshWorkerObjAFCMW_ = meshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
-
-			if (isReference_)
+			if (!workerObjAFCW_.CanAddSubWorker)
 			{
-				if (UIObject000Obj_ != null)
-				{
-					DeleteUIObject(UIObject000Obj_.name, meshWorkerObj_.name, layerWorkerObj_.name);
-				}
-
-				UIObject000Obj_ = newUIObjectObj_;
-				workerObjAFCW_.SetupLights(meshWorkerObjAFCMW_);
+				return null;
 			}
+
+			if (CurrentMeshWokerObj_ != null && CurrentLayerWokerObj_ != null)
+			{
+				CurrentMeshWokerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>().SetTexture(CurrentLayerWokerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().StopRecording());
+			}
+
+			(CurrentMeshWokerObj_, CurrentLayerWokerObj_) = workerObjAFCW_.AddSubWorker(meshPrefab_, isReference_ ? 0.5f : posRatio_, workerObjAFCW_.TextureWidth_, workerObjAFCW_.TextureHeight_);
+
+			var uiObjectObj_ = Instantiate(uiObjectPrefab_, Vector3.zero, Quaternion.identity, ScrollViewObjectsContentObj_.transform);
+			var uiObjectObjAFCUIO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			uiObjectObjAFCUIO_.Initialize(CurrentMeshWokerObj_, CurrentLayerWokerObj_, isReference_, isPermanent_, isMoveable_);
+
+			if (meshPrefab_ != surfaceMeshPrefab_ &&
+				!AppManager.MeshObjs_.ContainsValue(meshPrefab_))
+			{
+				AppManager.MeshObjs_.Add(meshPrefab_.name, meshPrefab_);
+				uiObjectObjAFCUIO_.MeshObjName_ = meshPrefab_.name;
+			}
+
+			var meshWorkerObjAFCMW_ = CurrentMeshWokerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
 
 			if (resize_)
 			{
 				meshWorkerObjAFCMW_.ScaleMeshToCameraBounds();
 			}
 
-			if (hide_)
-			{
-				meshWorkerObjAFCMW_.Hide();
-			}
+			meshWorkerObjAFCMW_.PivotObj_.SetActive(!hide_);
 
-			uiObjectsObjs_.Add(name_, newUIObjectObj_);
-
-			return newUIObjectObj_;
-		}
-
-		/// <summary>
-		/// Supprime l'objet.
-		/// </summary>
-		/// <param name="index_">Index dans le système de l'objet.</param>
-		public void DeleteUIObject(string uiObjectName_, string meshWorkerName_, string layerWorkerName_)
-		{
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
-
-			workerObjAFCW_.RemoveSubWorker(meshWorkerName_, layerWorkerName_);
-
-			if (uiObjectsObjs_.ContainsKey(uiObjectName_) && uiObjectsObjs_[uiObjectName_] != null)
-			{
-#if UNITY_EDITOR
-				DestroyImmediate(uiObjectsObjs_[uiObjectName_]);
-#else
-				Destroy(uiObjectsObjs_[uiObjectName_]);
-#endif
-			}
-
-			uiObjectsObjs_.Remove(uiObjectName_);
+			return uiObjectObj_;
 		}
 
 		private void EnableButtonOfLeftPanel(GameObject buttonObj_)
 		{
-			var buttonObjIs_ = leftPanelScrollViewContentObj_.GetComponentsInChildren<Image>();
+			var buttonObjIs_ = LeftPanelScrollViewContentObj_.GetComponentsInChildren<Image>();
 
 			foreach (var buttonObjI_ in buttonObjIs_)
 			{
@@ -626,15 +645,15 @@ namespace Assets.Scripts
 
 		private void DisableAllButtonsOfLeftPanel()
 		{
-			var buttonObjIs_ = leftPanelScrollViewContentObj_.GetComponentsInChildren<Image>();
+			var buttonObjIs_ = LeftPanelScrollViewContentObj_.GetComponentsInChildren<Image>();
 
 			foreach (var buttonObjI_ in buttonObjIs_)
 			{
 				buttonObjI_.color = Color.HSVToRGB(0f, 0f, 1f);
 
-				if (buttonObjI_.gameObject == buttonTranslateObj_)
+				if (buttonObjI_.gameObject == ButtonTranslateObj_)
 				{
-					sliderVerticalObj_.SetActive(false);
+					SliderVerticalObj_.SetActive(false);
 				}
 			}
 		}
@@ -662,21 +681,40 @@ namespace Assets.Scripts
 
 			var faceInfo_ = new FaceInfo();
 
-			faceInfo_.Name_ = inputFieldNameObj_.GetComponentInChildren<Text>().text;
+			faceInfo_.Name_ = InputFieldNameObj_.GetComponentInChildren<Text>().text;
 			faceInfo_.Name_ = string.IsNullOrWhiteSpace(faceInfo_.Name_) ? "Unknow face" : faceInfo_.Name_;
 
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
-			var workerObjAFCC_ = workerObjAFCW_.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var referenceObj_ = UIAugmentedFaceCreatorObject.ReferenceObjectObj_;
+			var referenceObjUIAFCO_ = referenceObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			var referenceMeshWorkerObj_ = referenceObjUIAFCO_.MeshWorkerObj_;
+			var referenceLayerWorkerObj_ = referenceObjUIAFCO_.LayerWorkerObj_;
+			var referenceAnchorObjs_ = referenceMeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>().GetAnchorObjs();
+			var meshCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var layerCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
-			var previewTexture_ = new Texture2D(workerObjAFCC_.RenderTexture_.width, workerObjAFCC_.RenderTexture_.height, TextureFormat.ARGB32, false);
+			var previewTexture_ = new Texture2D(meshCameraPivotObjAFCC_.RenderTexture_.width, meshCameraPivotObjAFCC_.RenderTexture_.height, TextureFormat.ARGB32, false);
+
+			meshCameraPivotObjAFCC_.ZRatio = 0f;
+
+			if (UIAugmentedFaceCreatorObject.ReferenceObjectObj_ != null)
+			{
+				var referenceObjectObjUIAFCO_ = UIAugmentedFaceCreatorObject.ReferenceObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+
+				Focus(referenceObjectObjUIAFCO_.MeshWorkerObj_, referenceObjectObjUIAFCO_.LayerWorkerObj_);
+
+				var cullingMask_ = layerCameraPivotObjAFCC_.CameraObjC_.cullingMask;
+				layerCameraPivotObjAFCC_.CameraObjC_.cullingMask = 1 << 0;
+				layerCameraPivotObjAFCC_.CameraObjC_.Render();
+				layerCameraPivotObjAFCC_.CameraObjC_.cullingMask = cullingMask_;
+
+				Focus(referenceObjectObjUIAFCO_.MeshWorkerObj_, referenceObjectObjUIAFCO_.LayerWorkerObj_);
+			}
 
 			var currentRenderTexture_ = RenderTexture.active;
-
-			RenderTexture.active = workerObjAFCC_.RenderTexture_;
-
-			previewTexture_.ReadPixels(new Rect(0, 0, workerObjAFCC_.RenderTexture_.width, workerObjAFCC_.RenderTexture_.height), 0, 0);
+			meshCameraPivotObjAFCC_.CameraObjC_.Render();
+			RenderTexture.active = meshCameraPivotObjAFCC_.RenderTexture_;
+			previewTexture_.ReadPixels(new Rect(0, 0, meshCameraPivotObjAFCC_.RenderTexture_.width, meshCameraPivotObjAFCC_.RenderTexture_.height), 0, 0);
 			previewTexture_.Apply();
-
 			RenderTexture.active = currentRenderTexture_;
 
 			var previewBytes_ = previewTexture_.EncodeToPNG();
@@ -690,51 +728,57 @@ namespace Assets.Scripts
 
 			faceInfo_.FaceParts_ = new List<FacePartInfo>();
 
-			var referenceObj_ = UIAugmentedFaceCreatorObject.ReferenceObj_;
-
-			var referenceObjUIAFCO_ = referenceObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-			var referenceMeshWorkerObj_ = referenceObjUIAFCO_.MeshWorkerObj_;
-			var referenceLayerWorkerObj_ = referenceObjUIAFCO_.LayerWorkerObj_;
-			var referenceAnchorObjs_ = referenceMeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>().GetAnchorObjs();
-
 			int facePartIndex_ = 0;
-			foreach (var uiObjectObj_ in uiObjectsObjs_.Values)
+			for (int i_ = 0; i_ < ScrollViewObjectsContentObj_.transform.childCount; i_++)
 			{
-				var facePart_ = new FacePartInfo();
-
-				var uiObjectObjUIAFCO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+				var objectObj_ = ScrollViewObjectsContentObj_.transform.GetChild(i_);
+				var uiObjectObjUIAFCO_ = objectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 				var objectObjUIAFCMW_ = uiObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+
+				if (!objectObjUIAFCMW_.PivotObj_.activeSelf)
+				{
+					continue;
+				}
+
+				var facePart_ = new FacePartInfo();
 
 				facePart_.IsReference_ = uiObjectObjUIAFCO_.IsReference_;
 
 				facePart_.Anchor_ = (ReferenceAnchor)uiObjectObjUIAFCO_.AnchorIndex_;
 
-				facePart_.Is2D_ = objectObjUIAFCMW_.MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>() != null;
+				var MeshObjAFCSM_ = objectObjUIAFCMW_.MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
+
+				facePart_.Is2D_ = MeshObjAFCSM_ != null;
+
+				if (MeshObjAFCSM_ != null)
+				{
+					facePart_.Dimension_ = MeshObjAFCSM_.Size_;
+				}
+
+				facePart_.MeshObjName_ = uiObjectObjUIAFCO_.MeshObjName_;
 
 				facePart_.PositionOffset_ = objectObjUIAFCMW_.GetPositionOffset(referenceAnchorObjs_[uiObjectObjUIAFCO_.AnchorIndex_]);
 
-				facePart_.Rotation_ = objectObjUIAFCMW_.GetRotation();
+				facePart_.Rotation_ = objectObjUIAFCMW_.transform.localRotation;
 
-				facePart_.Scale_ = objectObjUIAFCMW_.GetScale();
+				facePart_.Scale_ = objectObjUIAFCMW_.transform.localScale;
 
-				facePart_.Dimension_ = objectObjUIAFCMW_.GetDim();
+				var layerWorkerObjAFCLW_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
 
-				facePart_.MeshAssetPath_ = uiObjectObjUIAFCO_.AssetPath_;
+				var texture_ = layerWorkerObjAFCLW_.Save();
 
-				var tex_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>().Texture_;
-
-				if (tex_ != null)
+				if (texture_ != null)
 				{
-					var texBytes_ = tex_.EncodeToPNG();
+					var texBytes_ = texture_.EncodeToPNG();
 
 					var texName_ = $"FacePartTexture-{faceIndex_:D4}-{facePartIndex_:D4}.png";
 					var texPath_ = Path.Combine(faceFolderPath_, texName_);
 
 					File.WriteAllBytes(texPath_, texBytes_);
 
-					facePart_.TextureWidth_ = tex_.width;
+					facePart_.TextureWidth_ = texture_.width;
 
-					facePart_.TextureHeight = tex_.height;
+					facePart_.TextureHeight = texture_.height;
 
 					facePart_.TexturePath_ = texPath_;
 				}
@@ -757,6 +801,31 @@ namespace Assets.Scripts
 			File.WriteAllText(facePath_, faceJSON_);
 		}
 
+		/// <summary>
+		/// Change la position de la caméra de calque en fonction des travailleurs de maillage et de calque tout en redimentionant la caméra de calque à la dimension de l'objet.
+		/// </summary>
+		/// <param name="meshWorkerObj_">Travailleur de maillage.</param>
+		/// <param name="layerWorkerObj_">Travailleur de calque.</param>
+		public void Focus(GameObject meshWorkerObj_, GameObject layerWorkerObj_)
+		{
+			if (CurrentMeshWokerObj_ != meshWorkerObj_ && CurrentLayerWokerObj_ != layerWorkerObj_ &&
+				CurrentMeshWokerObj_ != null && CurrentLayerWokerObj_ != null)
+			{
+				var currentMeshWokerObjAFCMW_ = CurrentMeshWokerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+				var currentLayerWokerObjAFCLW_ = CurrentLayerWokerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+
+				currentMeshWokerObjAFCMW_.SetTexture(currentLayerWokerObjAFCLW_.StopRecording());
+			}
+
+			CurrentMeshWokerObj_ = meshWorkerObj_;
+			CurrentLayerWokerObj_ = layerWorkerObj_;
+
+			var meshWokerObjAFCMW_ = CurrentMeshWokerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+			var layerWokerObjAFCLW_ = CurrentLayerWokerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+
+			meshWokerObjAFCMW_.SetTexture(layerWokerObjAFCLW_.StartRecording());
+		}
+
 		private void ResetObjectAndLayer()
 		{
 			if (UISelection.CurrentSelectionObj_ == null)
@@ -769,16 +838,16 @@ namespace Assets.Scripts
 
 			if (uiObjectObjUIAFCL_ != null)
 			{
-				uiObjectObjUIAFCO_ = uiObjectObjUIAFCL_.UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-				var meshWorkerAFCMW_ = uiObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+				uiObjectObjUIAFCO_ = uiObjectObjUIAFCL_.ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+				var meshWorkerObj_ = uiObjectObjUIAFCO_.MeshWorkerObj_;
+				var meshWorkerAFCMW_ = meshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
 				var meshWorkerAFCSM_ = meshWorkerAFCMW_.MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
 
 
-				var layerObj_ = uiObjectObjUIAFCO_.LayersObjs_[UISelection.CurrentSelectionObj_];
+				var layerObj_ = uiObjectObjUIAFCL_.LayerObj_;
 				var layerObjAFCSM_ = layerObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
-				var workerAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
-				var layerCameraPivotObjAFCC_ = workerAFCW_.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
-				var layerWorkerObjAFCWL_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
+				var workerAFCW_ = WorkerObj_.GetComponent<AugmentedFaceCreatorWorker>();
+				var layerCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
 				var texture_ = layerObj_.GetComponent<MeshRenderer>().material.mainTexture;
 
@@ -788,7 +857,7 @@ namespace Assets.Scripts
 					layerCameraPivotObjAFCC_.SetRenderTexture(Mathf.FloorToInt(workerAFCW_.TextureWidth_ * r_), workerAFCW_.TextureHeight_);
 					if (meshWorkerAFCSM_ != null)
 					{
-						meshWorkerAFCSM_.Initialize(workerAFCW_.MeshCameraPivotObj_, 1f, 1f / r_);
+						meshWorkerAFCSM_.Initialize(AugmentedFaceCreatorWorker.MeshCameraPivotObj_, 1f, 1f / r_);
 					}
 				}
 				else
@@ -797,23 +866,23 @@ namespace Assets.Scripts
 					layerCameraPivotObjAFCC_.SetRenderTexture(workerAFCW_.TextureWidth_, Mathf.FloorToInt(workerAFCW_.TextureHeight_ * r_));
 					if (meshWorkerAFCSM_ != null)
 					{
-						meshWorkerAFCSM_.Initialize(workerAFCW_.MeshCameraPivotObj_, 1f / r_, 1f);
+						meshWorkerAFCSM_.Initialize(AugmentedFaceCreatorWorker.MeshCameraPivotObj_, 1f / r_, 1f);
 					}
 				}
 
-				layerWorkerObjAFCWL_.SetPositionXY(layerObj_, Vector2.zero);
-				layerWorkerObjAFCWL_.SetRotation(layerObj_, Quaternion.identity);
-				layerWorkerObjAFCWL_.SetScale(layerObj_, Vector2.one);
+				layerObj_.transform.localPosition = new Vector3(0f, 0f, layerObj_.transform.localPosition.z);
+				layerObj_.transform.localRotation = Quaternion.identity;
+				layerObj_.transform.localScale = Vector3.one;
 
 				if (!uiObjectObjUIAFCO_.IsReference_)
 				{
-					meshWorkerAFCMW_.SetPositionXY(0f, 0f);
-					meshWorkerAFCMW_.SetRotation(Quaternion.identity);
-					meshWorkerAFCMW_.SetScale(Vector2.one);
+					meshWorkerObj_.transform.localPosition = new Vector3(0f, 0f, layerObj_.transform.localPosition.z);
+					meshWorkerObj_.transform.localRotation = Quaternion.identity;
+					meshWorkerObj_.transform.localScale = Vector3.one;
 				}
 
-				layerObjAFCSM_.Initialize(workerAFCW_.LayerCameraPivotObj_);
-				workerAFCW_.SetLayerCameraPos(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);
+				layerObjAFCSM_.Initialize(AugmentedFaceCreatorWorker.LayerCameraPivotObj_);
+				Focus(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);
 			}
 			else if (uiObjectObjUIAFCO_ != null)
 			{
@@ -822,21 +891,26 @@ namespace Assets.Scripts
 					return;
 				}
 
-				var meshWorkerAFCMW_ = uiObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
-				var referenceObjUIAFCO_ = UIAugmentedFaceCreatorObject.ReferenceObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+				var meshWorkerObj_ = uiObjectObjUIAFCO_.MeshWorkerObj_;
+				var meshWorkerAFCMW_ = meshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+				var referenceObjUIAFCO_ = UIAugmentedFaceCreatorObject.ReferenceObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 
 				var offset_ = meshWorkerAFCMW_.GetPositionOffset(referenceObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>().GetAnchorObjs()[uiObjectObjUIAFCO_.AnchorIndex_]);
 
 				meshWorkerAFCMW_.PivotObj_.transform.Translate(offset_);
 
-				meshWorkerAFCMW_.SetPositionXY(0f, 0f);
-				meshWorkerAFCMW_.SetRotation(Quaternion.identity);
-				meshWorkerAFCMW_.SetScale(Vector2.one);
+				meshWorkerObj_.transform.localPosition = new Vector3(0f, 0f, meshWorkerObj_.transform.localPosition.z);
+				meshWorkerAFCMW_.transform.localRotation = Quaternion.identity;
+				meshWorkerAFCMW_.transform.localScale = Vector3.one;
 			}
 		}
 
 		private void ToggleVerticalSlider(GameObject uiObjectObj_)
 		{
+			if (uiObjectObj_ == null)
+			{
+				return;
+			}
 
 			if (CurrentUserAction_ == UIUserAction.Translate)
 			{
@@ -844,13 +918,13 @@ namespace Assets.Scripts
 
 				if (uiObjectObjAFCO_ != null)
 				{
-					sliderVerticalObj_.SetActive(true);
+					SliderVerticalObj_.SetActive(true);
 
-					var sliderVerticalObjS_ = sliderVerticalObj_.GetComponent<Slider>();
+					var sliderVerticalObjS_ = SliderVerticalObj_.GetComponent<Slider>();
 
 					if (uiObjectObjAFCO_.IsReference_)
 					{
-						var value_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>().GetZRatioOfMeshCamera();
+						var value_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().ZRatio;
 
 						sliderVerticalObjS_.normalizedValue = value_;
 					}
@@ -863,12 +937,12 @@ namespace Assets.Scripts
 				}
 				else
 				{
-					sliderVerticalObj_.SetActive(false);
+					SliderVerticalObj_.SetActive(false);
 				}
 			}
 			else
 			{
-				sliderVerticalObj_.SetActive(false);
+				SliderVerticalObj_.SetActive(false);
 			}
 		}
 
@@ -878,15 +952,14 @@ namespace Assets.Scripts
 		private void SetupButton()
 		{
 			// Composants annexes
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
-			var workerObjAFCC_ = workerObjAFCW_.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+			var meshCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
 			// Butons du panneau gauche
-			var buttonResetObjB_ = buttonResetObj_.GetComponent<Button>();
-			var buttonTranslateObjB_ = buttonTranslateObj_.GetComponent<Button>();
-			var sliderVerticalObjS_ = sliderVerticalObj_.GetComponent<Slider>();
-			var buttonRotateObjB_ = buttonRotateObj_.GetComponent<Button>();
-			var buttonScaleObjB_ = buttonScaleObj_.GetComponent<Button>();
+			var buttonResetObjB_ = ButtonResetObj_.GetComponent<Button>();
+			var buttonTranslateObjB_ = ButtonTranslateObj_.GetComponent<Button>();
+			var sliderVerticalObjS_ = SliderVerticalObj_.GetComponent<Slider>();
+			var buttonRotateObjB_ = ButtonRotateObj_.GetComponent<Button>();
+			var buttonScaleObjB_ = ButtonScaleObj_.GetComponent<Button>();
 
 			UISelection.SelectionChanged += (oldObj_, newObj_) =>
 			{
@@ -894,8 +967,8 @@ namespace Assets.Scripts
 
 				if (newObjAFCL_ != null)
 				{
-					var currentSelectionObjAFCO_ = newObjAFCL_.UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-					workerObjAFCW_.SetLayerCameraPos(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
+					var currentSelectionObjAFCO_ = newObjAFCL_.ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+					Focus(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
 				}
 
 				ToggleVerticalSlider(newObj_);
@@ -905,7 +978,7 @@ namespace Assets.Scripts
 			buttonResetObjB_.onClick.AddListener(() =>
 			{
 				CurrentUserAction_ = UIUserAction.Reset;
-				EnableButtonOfLeftPanel(buttonResetObj_);
+				EnableButtonOfLeftPanel(ButtonResetObj_);
 
 				ResetObjectAndLayer();
 
@@ -927,12 +1000,12 @@ namespace Assets.Scripts
 
 					if (currentSelectionObjAFCL_ != null)
 					{
-						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-						workerObjAFCW_.SetLayerCameraPos(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
+						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+						Focus(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
 					}
 
 					CurrentUserAction_ = UIUserAction.Translate;
-					EnableButtonOfLeftPanel(buttonTranslateObj_);
+					EnableButtonOfLeftPanel(ButtonTranslateObj_);
 				}
 			});
 
@@ -955,7 +1028,7 @@ namespace Assets.Scripts
 
 					if (currentSelectionObjUIAFCO_.IsReference_)
 					{
-						workerObjAFCW_.TranslateMeshCameraOnZ(sliderVerticalObjS_.normalizedValue);
+						meshCameraPivotObjAFCC_.ZRatio = sliderVerticalObjS_.normalizedValue;
 					}
 					else
 					{
@@ -987,12 +1060,12 @@ namespace Assets.Scripts
 
 					if (currentSelectionObjAFCL_ != null)
 					{
-						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-						workerObjAFCW_.SetLayerCameraPos(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
+						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+						Focus(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
 					}
 
 					CurrentUserAction_ = UIUserAction.Rotate;
-					EnableButtonOfLeftPanel(buttonRotateObj_);
+					EnableButtonOfLeftPanel(ButtonRotateObj_);
 				}
 			});
 
@@ -1010,19 +1083,19 @@ namespace Assets.Scripts
 
 					if (currentSelectionObjAFCL_ != null)
 					{
-						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.UIObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
-						workerObjAFCW_.SetLayerCameraPos(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
+						var currentSelectionObjAFCO_ = currentSelectionObjAFCL_.ObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+						Focus(currentSelectionObjAFCO_.MeshWorkerObj_, currentSelectionObjAFCO_.LayerWorkerObj_);
 					}
 
 					CurrentUserAction_ = UIUserAction.Scale;
-					EnableButtonOfLeftPanel(buttonScaleObj_);
+					EnableButtonOfLeftPanel(ButtonScaleObj_);
 				}
 			});
 
 			//// Butons du panneau droit
-			var buttonCancelObjB_ = buttonCancelObj_.GetComponent<Button>();
-			var buttonOkObjB_ = buttonOkObj_.GetComponent<Button>();
-			var buttonAddObjectObjB_ = buttonAddObjectObj_.GetComponent<Button>();
+			var buttonCancelObjB_ = ButtonCancelObj_.GetComponent<Button>();
+			var buttonOkObjB_ = ButtonOkObj_.GetComponent<Button>();
+			var buttonAddObjectObjB_ = ButtonAddObjectObj_.GetComponent<Button>();
 
 			//// Bouton d'annulation
 			buttonCancelObjB_.onClick.AddListener(() => Navigation.Current_.LoadMainMenu());
@@ -1039,30 +1112,24 @@ namespace Assets.Scripts
 			//// Bouton d'ajout d'objet (de type surface)
 			buttonAddObjectObjB_.onClick.AddListener(() =>
 			{
-				var uiObjectObj_ = AddUIObject(surfaceMeshPrefab_, 0.25f, false, false, true, false, false);
+				var uiObjectObj_ = AddObject(surfaceMeshPrefab_, 0.25f, false, false, true, false, false);
 				var uiObjectObjUIAFCO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 				var uiObjectObjAFCMW_ = uiObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
 				var uiObjectObjAFCSM_ = uiObjectObjAFCMW_.MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
 
 				uiObjectObjUIAFCO_.AddLayer(texture_ =>
 				{
-					var w_ = (float)texture_.width / workerObjAFCC_.RenderTexture_.width;
-					var h_ = (float)texture_.height / workerObjAFCC_.RenderTexture_.height;
+					var w_ = (float)texture_.width / meshCameraPivotObjAFCC_.RenderTexture_.width;
+					var h_ = (float)texture_.height / meshCameraPivotObjAFCC_.RenderTexture_.height;
 
 					var LayerWorkerObjAFCLW_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
 					LayerWorkerObjAFCLW_.Width_ = texture_.width;
 					LayerWorkerObjAFCLW_.Height_ = texture_.height;
 
-					workerObjAFCW_.SetLayerCameraPos(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);
-					uiObjectObjAFCSM_.Initialize(workerObjAFCW_.MeshCameraPivotObj_, w_, h_);
+					Focus(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);
+					uiObjectObjAFCSM_.Initialize(AugmentedFaceCreatorWorker.MeshCameraPivotObj_, w_, h_);
 				});
 			});
-
-			// Ajoute les objets pré-enregistré en les masquants
-			foreach (var objectPrefab_ in objectsPrefabs_)
-			{
-				AddUIObject(objectPrefab_, 0.25f, false, true, true, true, true);
-			}
 		}
 
 		/// <summary>
@@ -1071,15 +1138,15 @@ namespace Assets.Scripts
 		private void ResetButtonEvents()
 		{
 			// Butons du panneau gauche
-			var buttonResetObjB_ = buttonResetObj_.GetComponent<Button>();
-			var buttonTranslateObjB_ = buttonTranslateObj_.GetComponent<Button>();
-			var buttonRotateObjB_ = buttonRotateObj_.GetComponent<Button>();
-			var buttonScaleObjB_ = buttonScaleObj_.GetComponent<Button>();
+			var buttonResetObjB_ = ButtonResetObj_.GetComponent<Button>();
+			var buttonTranslateObjB_ = ButtonTranslateObj_.GetComponent<Button>();
+			var buttonRotateObjB_ = ButtonRotateObj_.GetComponent<Button>();
+			var buttonScaleObjB_ = ButtonScaleObj_.GetComponent<Button>();
 
 			//// Butons du panneau droit
-			var buttonCancelObjB_ = buttonCancelObj_.GetComponent<Button>();
-			var buttonOkObjB_ = buttonOkObj_.GetComponent<Button>();
-			var buttonAddObjectObjB_ = buttonAddObjectObj_.GetComponent<Button>();
+			var buttonCancelObjB_ = ButtonCancelObj_.GetComponent<Button>();
+			var buttonOkObjB_ = ButtonOkObj_.GetComponent<Button>();
+			var buttonAddObjectObjB_ = ButtonAddObjectObj_.GetComponent<Button>();
 
 			buttonResetObjB_.onClick.RemoveAllListeners();
 			buttonTranslateObjB_.onClick.RemoveAllListeners();
@@ -1094,149 +1161,150 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Dessine l'interface utilisateur.
 		/// </summary>
-		private void DrawUI(float scale_)
+		private void Draw(float scale_)
 		{
 			// Composants du panneau de gauche
-			var leftPanelObjRT_ = leftPanelObj_.GetComponent<RectTransform>();
-			var leftPanelScrollViewContentObjRT_ = leftPanelScrollViewContentObj_.GetComponent<RectTransform>();
-			var leftPanelScrollViewContentObjVLG_ = leftPanelScrollViewContentObj_.GetComponent<VerticalLayoutGroup>();
-			var leftPanelScrollViewContentChildObjRTs_ = leftPanelScrollViewContentObj_.GetComponentsInChildren<RectTransform>();
+			var leftPanelObjRT_ = LeftPanelObj_.GetComponent<RectTransform>();
+			var leftPanelScrollViewContentObjRT_ = LeftPanelScrollViewContentObj_.GetComponent<RectTransform>();
+			var leftPanelScrollViewContentObjVLG_ = LeftPanelScrollViewContentObj_.GetComponent<VerticalLayoutGroup>();
+			var leftPanelScrollViewContentChildObjRTs_ = LeftPanelScrollViewContentObj_.GetComponentsInChildren<RectTransform>();
 
 			// Composants du panneau de droite
-			var rightPanelObjRT_ = rightPanelObj_.GetComponent<RectTransform>();
-			var rightPanelHandleObjRT_ = rightPanelHandleObj_.GetComponent<RectTransform>();
-			var buttonCancelObjRT_ = buttonCancelObj_.GetComponent<RectTransform>();
-			var inputFieldNameObjRT_ = inputFieldNameObj_.GetComponent<RectTransform>();
-			var inputFieldNameObjTs_ = inputFieldNameObj_.GetComponentsInChildren<Text>();
-			var buttonOkObjRT_ = buttonOkObj_.GetComponent<RectTransform>();
-			var buttonAddObjectObjRT_ = buttonAddObjectObj_.GetComponent<RectTransform>();
-			var scrollViewObjectsObjRT_ = scrollViewObjectsObj_.GetComponent<RectTransform>();
-			var scrollViewObjectsContentObjRT_ = scrollViewObjectsContentObj_.GetComponent<RectTransform>();
-			var scrollViewObjectsContentObjVLG_ = scrollViewObjectsContentObj_.GetComponent<VerticalLayoutGroup>();
-			var scrollViewObjectsContentChildObjRTs_ = scrollViewObjectsContentObj_.GetComponentsInChildren<RectTransform>();
+			var rightPanelObjRT_ = RightPanelObj_.GetComponent<RectTransform>();
+			var rightPanelHandleObjRT_ = RightPanelHandleObj_.GetComponent<RectTransform>();
+			var buttonCancelObjRT_ = ButtonCancelObj_.GetComponent<RectTransform>();
+			var inputFieldNameObjRT_ = InputFieldNameObj_.GetComponent<RectTransform>();
+			var inputFieldNameObjTs_ = InputFieldNameObj_.GetComponentsInChildren<Text>();
+			var buttonOkObjRT_ = ButtonOkObj_.GetComponent<RectTransform>();
+			var buttonAddObjectObjRT_ = ButtonAddObjectObj_.GetComponent<RectTransform>();
+			var scrollViewObjectsObjRT_ = ScrollViewObjectsObj_.GetComponent<RectTransform>();
+			var scrollViewObjectsContentObjRT_ = ScrollViewObjectsContentObj_.GetComponent<RectTransform>();
+			var scrollViewObjectsContentObjVLG_ = ScrollViewObjectsContentObj_.GetComponent<VerticalLayoutGroup>();
+			var scrollViewObjectsContentChildObjRTs_ = ScrollViewObjectsContentObj_.GetComponentsInChildren<RectTransform>();
 
 			// Compoants du panneau de vue
-			var viewerPanelObjRT_ = viewerPanelObj_.GetComponent<RectTransform>();
-			var viewerPanelObjRI_ = viewerPanelObj_.GetComponent<RawImage>();
-			var workerObjAFCW_ = workerObj_.GetComponent<AugmentedFaceCreatorWorker>();
+			var viewerPanelObjRT_ = ViewerPanelObj_.GetComponent<RectTransform>();
+			var viewerPanelObjRI_ = ViewerPanelObj_.GetComponent<RawImage>();
+			var workerObjAFCW_ = WorkerObj_.GetComponent<AugmentedFaceCreatorWorker>();
 
 			// Constantes
 			if (scale_ > 0)
 			{
-				scaledTouchSurfaceSize_ = touchSurfaceSize_ * scale_;
-				scaledRightPanelWidth_ = rightPanelWidth_ * scale_;
-				scaledMarginSize_ = marginSize_ * scale_;
-				scaledBodyFontSize_ = Mathf.RoundToInt(bodyfontSize_ * scale_);
+				ScaledTouchSurfaceSize_ = touchSurfaceSize_ * scale_;
+				ScaledRightPanelWidth_ = rightPanelWidth_ * scale_;
+				ScaledMarginSize_ = marginSize_ * scale_;
+				ScaledBodyFontSize_ = Mathf.RoundToInt(bodyfontSize_ * scale_);
 			}
 
 			// Logiques du panneau de gauche
-			var leftPanelObjWidth_ = scaledTouchSurfaceSize_.x + scaledMarginSize_ * 2f;
+			var leftPanelObjWidth_ = ScaledTouchSurfaceSize_.x + ScaledMarginSize_ * 2f;
 
 			leftPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, leftPanelObjWidth_);
 
-			leftPanelScrollViewContentObjVLG_.padding = new RectOffset((int)scaledMarginSize_, (int)scaledMarginSize_, (int)scaledMarginSize_, (int)scaledMarginSize_);
-			leftPanelScrollViewContentObjVLG_.spacing = scaledMarginSize_;
+			leftPanelScrollViewContentObjVLG_.padding = new RectOffset((int)ScaledMarginSize_, (int)ScaledMarginSize_, (int)ScaledMarginSize_, (int)ScaledMarginSize_);
+			leftPanelScrollViewContentObjVLG_.spacing = ScaledMarginSize_;
 
 			foreach (var leftPanelScrollViewContentChildObjRT_ in leftPanelScrollViewContentChildObjRTs_)
 			{
-				leftPanelScrollViewContentChildObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
-				leftPanelScrollViewContentChildObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y);
+				leftPanelScrollViewContentChildObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
+				leftPanelScrollViewContentChildObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y);
 			}
 
 			//// Si au-dessus la boucle, la boucle annule son effet.
 			leftPanelScrollViewContentObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, leftPanelObjWidth_);
 
 			// Logique du panneau de droite
-			rightPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledRightPanelWidth_);
-			rightPanelHandleObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x * 0.5f);
+			rightPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledRightPanelWidth_);
+			rightPanelHandleObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x * 0.5f);
 
 			//// Bouton d'annulation
-			buttonCancelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
-			buttonCancelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y);
-			buttonCancelObjRT_.anchoredPosition = new Vector2(scaledMarginSize_, -scaledMarginSize_);
+			buttonCancelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
+			buttonCancelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y);
+			buttonCancelObjRT_.anchoredPosition = new Vector2(ScaledMarginSize_, -ScaledMarginSize_);
 
 			//// Champ du nom
-			inputFieldNameObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y);
-			inputFieldNameObjRT_.offsetMin = new Vector2(scaledTouchSurfaceSize_.x + scaledMarginSize_ * 2f, inputFieldNameObjRT_.offsetMin.y);
-			inputFieldNameObjRT_.offsetMax = new Vector2((scaledTouchSurfaceSize_.x + scaledMarginSize_ * 2f) * -1, -scaledMarginSize_);
+			inputFieldNameObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y);
+			inputFieldNameObjRT_.offsetMin = new Vector2(ScaledTouchSurfaceSize_.x + ScaledMarginSize_ * 2f, inputFieldNameObjRT_.offsetMin.y);
+			inputFieldNameObjRT_.offsetMax = new Vector2((ScaledTouchSurfaceSize_.x + ScaledMarginSize_ * 2f) * -1, -ScaledMarginSize_);
 
 			foreach (var inputFieldNameObjT_ in inputFieldNameObjTs_)
 			{
-				inputFieldNameObjT_.fontSize = scaledBodyFontSize_;
+				inputFieldNameObjT_.fontSize = ScaledBodyFontSize_;
 			}
 
 			//// Bouton de validation
-			buttonOkObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
-			buttonOkObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y);
-			buttonOkObjRT_.anchoredPosition = new Vector2(-scaledMarginSize_, -scaledMarginSize_);
+			buttonOkObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
+			buttonOkObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y);
+			buttonOkObjRT_.anchoredPosition = new Vector2(-ScaledMarginSize_, -ScaledMarginSize_);
 
 			//// Bouton d'ajount d'object
-			buttonAddObjectObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
-			buttonAddObjectObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y);
-			buttonAddObjectObjRT_.anchoredPosition = new Vector2(scaledMarginSize_, (scaledMarginSize_ * 2f + scaledTouchSurfaceSize_.y) * -1);
+			buttonAddObjectObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
+			buttonAddObjectObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y);
+			buttonAddObjectObjRT_.anchoredPosition = new Vector2(ScaledMarginSize_, (ScaledMarginSize_ * 2f + ScaledTouchSurfaceSize_.y) * -1);
 
 			//// Liste des objets
-			scrollViewObjectsObjRT_.offsetMin = new Vector2(scaledMarginSize_, scaledMarginSize_);
-			scrollViewObjectsObjRT_.offsetMax = new Vector2(-scaledMarginSize_, (scaledTouchSurfaceSize_.y * 2 + scaledMarginSize_ * 3f) * -1f);
-			scrollViewObjectsContentObjVLG_.spacing = scaledMarginSize_;
+			scrollViewObjectsObjRT_.offsetMin = new Vector2(ScaledMarginSize_, ScaledMarginSize_);
+			scrollViewObjectsObjRT_.offsetMax = new Vector2(-ScaledMarginSize_, (ScaledTouchSurfaceSize_.y * 2 + ScaledMarginSize_ * 3f) * -1f);
+			scrollViewObjectsContentObjVLG_.spacing = ScaledMarginSize_;
 
 			// Logique du panneau de vue
-			if (workerObjAFCW_.MeshCameraPivotObj_ != null)
+			if (AugmentedFaceCreatorWorker.MeshCameraPivotObj_ != null)
 			{
-				var MeshCameraPivotObjAFCC_ = workerObjAFCW_.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
+				var MeshCameraPivotObjAFCC_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 				viewerPanelObjRI_.texture = MeshCameraPivotObjAFCC_.RenderTexture_;
+				viewerPanelObjRI_.material.mainTexture = MeshCameraPivotObjAFCC_.RenderTexture_;
+
 				var MeshCameraPivotObjRatio_ = MeshCameraPivotObjAFCC_.RenderTexture_.width / MeshCameraPivotObjAFCC_.RenderTexture_.height;
 
-				viewerPanelObjWidth_ = Screen.width - leftPanelObjWidth_ - scaledRightPanelWidth_ - ScaledTouchSurfaceSize_.x * 0.5f;
-				viewerPanelObjHeight_ = (float)Screen.height;
-				var viewerPanelObjRatio_ = viewerPanelObjWidth_ / viewerPanelObjHeight_;
+				ViewerPanelObjWidth_ = Screen.width - leftPanelObjWidth_ - ScaledRightPanelWidth_ - ScaledTouchSurfaceSize_.x * 0.5f;
+				ViewerPanelObjHeight_ = (float)Screen.height;
+				var viewerPanelObjRatio_ = ViewerPanelObjWidth_ / ViewerPanelObjHeight_;
 
 				var ratioCorrection_ = MeshCameraPivotObjRatio_ - viewerPanelObjRatio_;
 
-				viewerPanelObjXOffset_ = 0f;
+				ViewerPanelObjXOffset_ = 0f;
 
 				if (ratioCorrection_ >= 0f)
 				{
-					viewerPanelObjXOffset_ = leftPanelObjWidth_;
-					viewerPanelObjHeight_ *= 1f - ratioCorrection_;
+					ViewerPanelObjXOffset_ = leftPanelObjWidth_;
+					ViewerPanelObjHeight_ *= 1f - ratioCorrection_;
 				}
 				else
 				{
-					viewerPanelObjXOffset_ = leftPanelObjWidth_ + (viewerPanelObjWidth_ - viewerPanelObjHeight_) * 0.5f;
-					viewerPanelObjWidth_ = viewerPanelObjHeight_;
+					ViewerPanelObjXOffset_ = leftPanelObjWidth_ + (ViewerPanelObjWidth_ - ViewerPanelObjHeight_) * 0.5f;
+					ViewerPanelObjWidth_ = ViewerPanelObjHeight_;
 				}
 
-				viewerPanelObjYOffset_ = (Screen.height - viewerPanelObjHeight_) * -0.5f;
+				ViewerPanelObjYOffset_ = (Screen.height - ViewerPanelObjHeight_) * -0.5f;
 
-				viewerPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, viewerPanelObjWidth_);
-				viewerPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, viewerPanelObjHeight_);
-				viewerPanelObjRT_.anchoredPosition = new Vector2(viewerPanelObjXOffset_, viewerPanelObjYOffset_);
+				viewerPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerPanelObjWidth_);
+				viewerPanelObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerPanelObjHeight_);
+				viewerPanelObjRT_.anchoredPosition = new Vector2(ViewerPanelObjXOffset_, ViewerPanelObjYOffset_);
 
 				//// Silder vertical
-				var sliderVerticalBackgroundObj_ = sliderVerticalObj_.transform.Find("Background").gameObject;
-				var sliderVerticalFillAreaObj_ = sliderVerticalObj_.transform.Find("FillArea").gameObject;
-				var sliderVerticalHandleSlideAreaObj_ = sliderVerticalObj_.transform.Find("HandleSlideArea").gameObject;
+				var sliderVerticalBackgroundObj_ = SliderVerticalObj_.transform.Find("Background").gameObject;
+				var sliderVerticalFillAreaObj_ = SliderVerticalObj_.transform.Find("FillArea").gameObject;
+				var sliderVerticalHandleSlideAreaObj_ = SliderVerticalObj_.transform.Find("HandleSlideArea").gameObject;
 				var sliderVerticalHandleObj_ = sliderVerticalHandleSlideAreaObj_.transform.Find("Handle").gameObject;
 
-				var sliderVerticalObjRT_ = sliderVerticalObj_.GetComponent<RectTransform>();
+				var sliderVerticalObjRT_ = SliderVerticalObj_.GetComponent<RectTransform>();
 				var sliderVerticalBackgroundObjRT_ = sliderVerticalBackgroundObj_.GetComponent<RectTransform>();
 				var sliderVerticalHandleSlideAreaObjRT_ = sliderVerticalHandleSlideAreaObj_.GetComponent<RectTransform>();
 				var sliderVerticalHandleObjRT_ = sliderVerticalHandleObj_.GetComponent<RectTransform>();
 
-				sliderVerticalBackgroundObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
+				sliderVerticalBackgroundObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
 
-				sliderVerticalObjRT_.offsetMin = new Vector2(0f, scaledMarginSize_);
-				sliderVerticalObjRT_.offsetMax = new Vector2(0f, scaledMarginSize_ * -1f);
-				sliderVerticalObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledTouchSurfaceSize_.x);
+				sliderVerticalObjRT_.offsetMin = new Vector2(0f, ScaledMarginSize_);
+				sliderVerticalObjRT_.offsetMax = new Vector2(0f, ScaledMarginSize_ * -1f);
+				sliderVerticalObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ScaledTouchSurfaceSize_.x);
 
-				sliderVerticalHandleSlideAreaObjRT_.offsetMin = new Vector2(0f, scaledTouchSurfaceSize_.y * 0.5f);
-				sliderVerticalHandleSlideAreaObjRT_.offsetMax = new Vector2(0f, scaledTouchSurfaceSize_.y * -0.5f);
+				sliderVerticalHandleSlideAreaObjRT_.offsetMin = new Vector2(0f, ScaledTouchSurfaceSize_.y * 0.5f);
+				sliderVerticalHandleSlideAreaObjRT_.offsetMax = new Vector2(0f, ScaledTouchSurfaceSize_.y * -0.5f);
 
-				sliderVerticalHandleObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledTouchSurfaceSize_.y * 0.5f);
+				sliderVerticalHandleObjRT_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ScaledTouchSurfaceSize_.y * 0.5f);
 			}
 
-			// Dessine les éléments enfants
-			Draw?.Invoke(scale_);
+			DrawUI?.Invoke(scale_);
 		}
 
 		/// <summary>
@@ -1244,66 +1312,41 @@ namespace Assets.Scripts
 		/// </summary>
 		public void ForceDraw()
 		{
-			if (isInitialized_)
+			if (IsInitialized_)
 			{
-				var canvasObjUICS_ = canvasObj_.GetComponent<UICanvasScaler>();
+				var canvasObjUICS_ = CanvasObj_.GetComponent<UICanvasScaler>();
 				canvasObjUICS_.InvokeChangedScaleEvent();
 			}
 		}
 
-		/// <summary>
-		/// Coroutine qui configure le composant après la phase d'initialisation de Unity. 
-		/// </summary>
-		/// <returns></returns>
-		private IEnumerator SetupCoroutine()
+		public void Setup()
 		{
-			yield return new WaitUntil(() => isInitialized_ && workerObj_.GetComponent<AugmentedFaceCreatorWorker>().IsInitialized_);
-
-			AddUIObject(faceMeshPrefab_, 0.5f, true, true, false, true, false);
-
 			SetupTouch();
 
 			SetupButton();
-		}
 
-		private void Start()
-		{
-			canvasObj_ = GameObject.Find("Canvas");
-			backgroundObj_ = transform.Find("Background").gameObject;
-			leftPanelObj_ = transform.Find("LeftPanel").gameObject;
-			leftPanelScrollViewObj_ = leftPanelObj_.transform.Find("ScrollView").gameObject;
-			leftPanelScrollViewContentObj_ = leftPanelScrollViewObj_.transform.Find("Viewport").Find("Content").gameObject;
-			buttonResetObj_ = leftPanelScrollViewContentObj_.transform.Find("Button-Reset").gameObject;
-			buttonTranslateObj_ = leftPanelScrollViewContentObj_.transform.Find("Button-Translate").gameObject;
-			buttonRotateObj_ = leftPanelScrollViewContentObj_.transform.Find("Button-Rotate").gameObject;
-			buttonScaleObj_ = leftPanelScrollViewContentObj_.transform.Find("Button-Scale").gameObject;
-			rightPanelObj_ = transform.Find("RightPanel").gameObject;
-			rightPanelHandleObj_ = rightPanelObj_.transform.Find("RightPanelHandle").gameObject;
-			buttonCancelObj_ = rightPanelObj_.transform.Find("Button-Cancel").gameObject;
-			inputFieldNameObj_ = rightPanelObj_.transform.Find("InputField-Name").gameObject;
-			buttonOkObj_ = rightPanelObj_.transform.Find("Button-Ok").gameObject;
-			buttonAddObjectObj_ = rightPanelObj_.transform.Find("Button-AddObject").gameObject;
-			scrollViewObjectsObj_ = rightPanelObj_.transform.Find("ScrollView-Objects").gameObject;
-			scrollViewObjectsContentObj_ = scrollViewObjectsObj_.transform.Find("Viewport").Find("Content").gameObject;
-			viewerPanelObj_ = transform.Find("ViewerPanel").gameObject;
-			sliderVerticalObj_ = viewerPanelObj_.transform.Find("SliderVertical").gameObject;
+			IsInitialized_ = true;
 
-			uiObjectsObjs_ = new Dictionary<string, GameObject>();
-
-			if (workerObj_ == null)
-			{
-				workerObj_ = GameObject.Find("Worker");
-			}
-
-			var canvasObjUICS_ = canvasObj_.GetComponent<UICanvasScaler>();
-			canvasObjUICS_.ChangedScale += DrawUI;
+			var canvasObjUICS_ = CanvasObj_.GetComponent<UICanvasScaler>();
+			canvasObjUICS_.ChangedScale += Draw;
 			canvasObjUICS_.InvokeChangedScaleEvent();
 
-			Initialize?.Invoke();
+			var uiObjectObj_ = AddObject(referenceMeshPrefab_, 0.5f, true, true, false, true, false);
+			var uiObjectObjUIAFCO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+			uiObjectObjUIAFCO_.AddLayer(referenceLayer_, true, true, false);
 
-			isInitialized_ = true;
+			// Ajoute les objets pré-enregistré en les masquants
+			foreach (var objectPrefab_ in objectsPrefabs_)
+			{
+				AddObject(objectPrefab_, 0.25f, false, true, true, true, true);
+			}
 
-			StartCoroutine(SetupCoroutine());
+			Focus(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);
+		}
+
+		private void Awake()
+		{
+			Instance_ = this;
 		}
 	}
 }
