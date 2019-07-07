@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using UnityEditor;
@@ -70,10 +71,10 @@ namespace Assets.Scripts
 		private GameObject surfaceMeshPrefab_;
 
 		/// <summary>
-		/// Liste des objets de maillage à ajouter.
+		/// Préfabriqué du maillage vide.
 		/// </summary>
 		[SerializeField]
-		private List<GameObject> objectsPrefabs_;
+		private GameObject emptyMeshPrefab_;
 
 		/// <summary>
 		/// Texture de référence du maillage de référence.
@@ -583,7 +584,7 @@ namespace Assets.Scripts
 		/// <param name="resize_">Force l'objet à être redimensionner à la largeur de l'écran.</param>
 		/// <param name="hide_">Masque l'objet.</param>
 		/// <returns></returns>
-		public GameObject AddObject(GameObject meshPrefab_, float posRatio_, bool isReference_, bool isPermanent_, bool isMoveable_, bool resize_, bool hide_)
+		public GameObject AddObject(GameObject meshPrefab_, float posRatio_, bool isReference_, bool isPermanent_, bool isMoveable_, bool resize_, bool hide_, Mesh mesh_ = null)
 		{
 			var workerObjAFCW_ = AugmentedFaceCreatorWorker.Instance_;
 
@@ -603,21 +604,28 @@ namespace Assets.Scripts
 			var uiObjectObjAFCUIO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 			uiObjectObjAFCUIO_.Initialize(CurrentMeshWokerObj_, CurrentLayerWokerObj_, isReference_, isPermanent_, isMoveable_);
 
-			if (meshPrefab_ != surfaceMeshPrefab_ &&
-				!AppManager.MeshObjs_.ContainsValue(meshPrefab_))
-			{
-				AppManager.MeshObjs_.Add(meshPrefab_.name, meshPrefab_);
-				uiObjectObjAFCUIO_.MeshObjName_ = meshPrefab_.name;
-			}
-
 			var meshWorkerObjAFCMW_ = CurrentMeshWokerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
+
+			if (mesh_ != null)
+			{
+				meshWorkerObjAFCMW_.MeshObj_.GetComponent<MeshFilter>().mesh = mesh_;
+				meshWorkerObjAFCMW_.MeshObj_.GetComponent<MeshCollider>().sharedMesh = mesh_;
+			}
 
 			if (resize_)
 			{
 				meshWorkerObjAFCMW_.ScaleMeshToCameraBounds();
 			}
 
-			meshWorkerObjAFCMW_.PivotObj_.SetActive(!hide_);
+			if (hide_)
+			{
+				uiObjectObjAFCUIO_.ShowHide();
+			}
+
+			if (AppManager.Current_.Meshs_.Contains(mesh_))
+			{
+				uiObjectObjAFCUIO_.MeshObjIndex_ = AppManager.Current_.Meshs_.IndexOf(mesh_);
+			}
 
 			return uiObjectObj_;
 		}
@@ -680,6 +688,8 @@ namespace Assets.Scripts
 			Directory.CreateDirectory(faceFolderPath_);
 
 			var faceInfo_ = new FaceInfo();
+
+			faceInfo_.FolderPath_ = faceFolderPath_;
 
 			faceInfo_.Name_ = InputFieldNameObj_.GetComponentInChildren<Text>().text;
 			faceInfo_.Name_ = string.IsNullOrWhiteSpace(faceInfo_.Name_) ? "Unknow face" : faceInfo_.Name_;
@@ -755,13 +765,24 @@ namespace Assets.Scripts
 					facePart_.Dimension_ = MeshObjAFCSM_.Size_;
 				}
 
-				facePart_.MeshObjName_ = uiObjectObjUIAFCO_.MeshObjName_;
+				facePart_.MeshObjIndex_ = uiObjectObjUIAFCO_.MeshObjIndex_;
 
-				facePart_.PositionOffset_ = objectObjUIAFCMW_.GetPositionOffset(referenceAnchorObjs_[uiObjectObjUIAFCO_.AnchorIndex_]);
+				var center_ = (from referenceAnchorObj_ in referenceAnchorObjs_
+							   where referenceAnchorObj_.name == "Center"
+							   select referenceAnchorObj_).FirstOrDefault();
 
-				facePart_.Rotation_ = objectObjUIAFCMW_.transform.localRotation;
+				facePart_.PositionOffset_ = objectObjUIAFCMW_.GetPositionOffset(center_) * -1f;
 
-				facePart_.Scale_ = objectObjUIAFCMW_.transform.localScale;
+				facePart_.Rotation_ = objectObjUIAFCMW_.PivotObj_.transform.localRotation;
+
+				if (UIAugmentedFaceCreatorObject.ReferenceObjectObj_ != null)
+				{
+					var referenceObjectObjUIAFCO_ = UIAugmentedFaceCreatorObject.ReferenceObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
+
+					facePart_.ReferenceScale_ = referenceObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>().PivotObj_.transform.localScale;
+				}
+
+				facePart_.Scale_ = objectObjUIAFCMW_.PivotObj_.transform.localScale;
 
 				var layerWorkerObjAFCLW_ = uiObjectObjUIAFCO_.LayerWorkerObj_.GetComponent<AugmentedFaceCreatorLayerWorker>();
 
@@ -1112,7 +1133,7 @@ namespace Assets.Scripts
 			//// Bouton d'ajout d'objet (de type surface)
 			buttonAddObjectObjB_.onClick.AddListener(() =>
 			{
-				var uiObjectObj_ = AddObject(surfaceMeshPrefab_, 0.25f, false, false, true, false, false);
+				var uiObjectObj_ = AddObject(surfaceMeshPrefab_, 0.4f, false, false, true, false, false);
 				var uiObjectObjUIAFCO_ = uiObjectObj_.GetComponent<UIAugmentedFaceCreatorObject>();
 				var uiObjectObjAFCMW_ = uiObjectObjUIAFCO_.MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
 				var uiObjectObjAFCSM_ = uiObjectObjAFCMW_.MeshObj_.GetComponent<AugmentedFaceCreatorSurfaceMesh>();
@@ -1257,7 +1278,8 @@ namespace Assets.Scripts
 				var MeshCameraPivotObjRatio_ = MeshCameraPivotObjAFCC_.RenderTexture_.width / MeshCameraPivotObjAFCC_.RenderTexture_.height;
 
 				ViewerPanelObjWidth_ = Screen.width - leftPanelObjWidth_ - ScaledRightPanelWidth_ - ScaledTouchSurfaceSize_.x * 0.5f;
-				ViewerPanelObjHeight_ = (float)Screen.height;
+				ViewerPanelObjHeight_ = Screen.height;
+				ViewerPanelObjHeight_ = Screen.height;
 				var viewerPanelObjRatio_ = ViewerPanelObjWidth_ / ViewerPanelObjHeight_;
 
 				var ratioCorrection_ = MeshCameraPivotObjRatio_ - viewerPanelObjRatio_;
@@ -1336,9 +1358,9 @@ namespace Assets.Scripts
 			uiObjectObjUIAFCO_.AddLayer(referenceLayer_, true, true, false);
 
 			// Ajoute les objets pré-enregistré en les masquants
-			foreach (var objectPrefab_ in objectsPrefabs_)
+			foreach (var mesh_ in AppManager.Current_.Meshs_)
 			{
-				AddObject(objectPrefab_, 0.25f, false, true, true, true, true);
+				var object_ = AddObject(emptyMeshPrefab_, 0.4f, false, true, true, true, true, mesh_);
 			}
 
 			Focus(uiObjectObjUIAFCO_.MeshWorkerObj_, uiObjectObjUIAFCO_.LayerWorkerObj_);

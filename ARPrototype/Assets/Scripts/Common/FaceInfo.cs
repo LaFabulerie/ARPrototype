@@ -7,6 +7,9 @@ namespace Assets.Scripts
 	public class FaceInfo
 	{
 		[DataMember()]
+		public string FolderPath_ { get; set; }
+
+		[DataMember()]
 		public string Name_ { get; set; }
 
 		[DataMember()]

@@ -23,12 +23,13 @@ namespace GoogleARCore
     using GoogleARCoreInternal;
     using UnityEngine;
     using UnityEngine.Rendering;
+	using UnityEngine.UI;
 
-    /// <summary>
-    /// A component that automatically adjust lighting settings for the scene
-    /// to be inline with those estimated by ARCore.
-    /// </summary>
-    [ExecuteInEditMode]
+	/// <summary>
+	/// A component that automatically adjust lighting settings for the scene
+	/// to be inline with those estimated by ARCore.
+	/// </summary>
+	[ExecuteInEditMode]
     [HelpURL(
         "https://developers.google.com/ar/reference/unity/class/GoogleARCore/EnvironmentalLight")]
     public class EnvironmentalLight : MonoBehaviour
@@ -58,8 +59,8 @@ namespace GoogleARCore
                 return;
             }
 
-            // Normalize pixel intensity by middle gray in gamma space.
-            const float middleGray = 0.466f;
+			// Normalize pixel intensity by middle gray in gamma space.
+			const float middleGray = 0.466f;
             float normalizedIntensity = Frame.LightEstimate.PixelIntensity / middleGray;
 
             // Apply color correction along with normalized pixel intensity in gamma space.
@@ -69,6 +70,6 @@ namespace GoogleARCore
 
             // Set _GlobalLightEstimation for backward compatibility.
             Shader.SetGlobalFloat("_GlobalLightEstimation", normalizedIntensity);
-        }
+		}
     }
 }

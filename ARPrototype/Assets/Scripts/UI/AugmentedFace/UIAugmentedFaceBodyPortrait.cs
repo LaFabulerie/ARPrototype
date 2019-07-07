@@ -12,12 +12,11 @@ namespace Assets.Scripts
 	[ExecuteAlways()]
 	public class UIAugmentedFaceBodyPortrait : MonoBehaviour
 	{
-		private GameObject canvasObj_;
+		public GameObject CanvasObj_ => GameObject.Find("Canvas");
 
-		private GameObject scrollViewFacesObj_;
-		private GameObject scrollViewFacesContentObj_;
+		public GameObject ScrollViewFacesObj_ => transform.Find("ScrollView-Faces").gameObject;
 
-		private UITouch uit_;
+		public GameObject ScrollViewFacesContentObj_ => ScrollViewFacesObj_.transform.Find("Viewport").Find("Content").gameObject;
 
 		[SerializeField]
 		private float margin_;
@@ -28,10 +27,17 @@ namespace Assets.Scripts
 		[SerializeField]
 		private GameObject facePrefab_;
 
-		public List<GameObject> faceObjs_ { get; private set; }
-
 		private void LoadFaces()
 		{
+			for (int i_ = 0; i_ < ScrollViewFacesContentObj_.transform.childCount; i_++)
+			{
+#if UNITY_EDITOR
+				DestroyImmediate(ScrollViewFacesContentObj_.transform.GetChild(i_).gameObject);
+#else
+				Destroy(ScrollViewFacesContentObj_.transform.GetChild(i_).gameObject);
+#endif
+			}
+
 			var rootPath_ = Path.Combine(Application.persistentDataPath, "faces");
 
 			if (!Directory.Exists(rootPath_))
@@ -52,9 +58,8 @@ namespace Assets.Scripts
 				var faceInfo_ = serializer_.ReadObject(stream_) as FaceInfo;
 				stream_.Close();
 
-				var faceObj_ = Instantiate(facePrefab_, Vector3.zero, Quaternion.identity, scrollViewFacesContentObj_.transform);
+				var faceObj_ = Instantiate(facePrefab_, Vector3.zero, Quaternion.identity, ScrollViewFacesContentObj_.transform);
 				faceObj_.GetComponent<AugmentedFaceFaceData>().Initialiaze(Path.GetFileName(folderName_), faceInfo_);
-				faceObjs_.Add(faceObj_);
 			}
 		}
 
@@ -64,16 +69,9 @@ namespace Assets.Scripts
 
 		private void Start()
 		{
-			canvasObj_ = GameObject.Find("Canvas");
-
-			scrollViewFacesObj_ = transform.Find("ScrollView-Faces").gameObject;
-			scrollViewFacesContentObj_ = scrollViewFacesObj_.transform.Find("Viewport").Find("Content").gameObject;
-
-			var canvasObjUICS_ = canvasObj_.GetComponent<UICanvasScaler>();
+			var canvasObjUICS_ = CanvasObj_.GetComponent<UICanvasScaler>();
 			canvasObjUICS_.ChangedScale += DrawUI;
 			canvasObjUICS_.InvokeChangedScaleEvent();
-
-			faceObjs_ = new List<GameObject>();
 
 			LoadFaces();
 		}

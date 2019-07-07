@@ -55,17 +55,17 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Appeler lors du début du déplacement avec un doigt dans le cas d'un bypass.
 		/// </summary>
-		public event Action<PointerEventData, GameObject> BeginDrag;
+		public event Action<PointerEventData> BeginDrag;
 
 		/// <summary>
 		/// Appeler lors du déplacement avec un doigt dans le cas d'un bypass.
 		/// </summary>
-		public event Action<PointerEventData, GameObject> Drag;
+		public event Action<PointerEventData> Drag;
 
 		/// <summary>
 		/// Appeler lors de la fin du déplacement avec un doigt dans le cas d'un bypass.
 		/// </summary>
-		public event Action<PointerEventData, GameObject> EndDrag;
+		public event Action<PointerEventData> EndDrag;
 
 		/// <summary>
 		/// Appeler lors du début du déplacement avec un doigt. L'écouteur prend en argument la position.
@@ -196,8 +196,7 @@ namespace Assets.Scripts
 		{
 			if (BeginDrag != null)
 			{
-				BeginDrag(eventData_, gameObject);
-				return;
+				BeginDrag(eventData_);
 			}
 
 			if (Input.mousePresent)
@@ -248,8 +247,7 @@ namespace Assets.Scripts
 		{
 			if (Drag != null)
 			{
-				Drag(eventData_, gameObject);
-				return;
+				Drag(eventData_);
 			}
 
 			if (Input.mousePresent)
@@ -304,8 +302,7 @@ namespace Assets.Scripts
 		{
 			if (EndDrag != null)
 			{
-				EndDrag(eventData_, gameObject);
-				return;
+				EndDrag(eventData_);
 			}
 
 			if (Input.mousePresent)

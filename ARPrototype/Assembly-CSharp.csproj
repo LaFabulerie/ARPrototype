@@ -246,7 +246,8 @@
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\XPSession.cs" />
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\XPSessionStatus.cs" />
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\XPTrackingState.cs" />
-    <Compile Include="Assets\Scripts\AugmentedFace\AugmentedFaceMesh.cs" />
+    <Compile Include="Assets\Scripts\AugmentedFace\AugmentedFaceFace.cs" />
+    <Compile Include="Assets\Scripts\AugmentedFace\AugmentedFaceObject.cs" />
     <Compile Include="Assets\Scripts\AugmentedFace\AugmentedFaceWorker.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorCamera.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorLayerWorker.cs" />
@@ -407,6 +408,7 @@
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\UnityARKitPlugin\ARKitRemote\ARKITREMOTE.txt" />
+    <None Include="Assets\Materials\MobileDiffuseWithLightEstimation1.shader" />
     <None Include="Assets\UnityARKitPlugin\Plugins\iOS\UnityARKit\Shaders\YUVShaderLinear.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\GoogleARCore\Examples\ComputerVision\Materials\EdgeDetectionBackground.shader" />

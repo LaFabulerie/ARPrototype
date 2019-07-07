@@ -25,19 +25,12 @@ namespace Assets.Scripts
 
 		public static Orientation Orientation_ { get; private set; }
 
-		private static Dictionary<string, GameObject> meshObjs_;
+		[SerializeField]
+		private List<Mesh> meshs_;
 
-		public static Dictionary<string, GameObject> MeshObjs_
+		public List<Mesh> Meshs_
 		{
-			get
-			{
-				if (meshObjs_ == null)
-				{
-					meshObjs_ = new Dictionary<string, GameObject>();
-				}
-
-				return meshObjs_;
-			}
+			get => meshs_;
 		}
 
 		private Orientation prevOrientation_;

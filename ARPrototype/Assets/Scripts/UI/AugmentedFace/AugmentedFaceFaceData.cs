@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,49 +7,52 @@ namespace Assets.Scripts
 	[ExecuteAlways()]
 	public class AugmentedFaceFaceData : MonoBehaviour
 	{
+		public GameObject Worker_ => GameObject.Find("Worker");
+
+		public GameObject BodyPortrait_ => GameObject.Find("Body-Portrait");
+
 		public FaceInfo FaceInfo_ { get; private set; }
-
-		private Texture2D GetImage(string path_, int width_ = 1024, int height_ = 1024)
-		{
-			if (!File.Exists(path_))
-			{
-				return null;
-			}
-
-			var previewBytes_ = File.ReadAllBytes(path_);
-
-			var previewTex_ = new Texture2D(width_, height_, TextureFormat.ARGB32, false);
-			previewTex_.LoadImage(previewBytes_);
-
-			return previewTex_;
-		}
 
 		private void SetupTouch()
 		{
 			var uit_ = GetComponent<UITouch>();
+			var BodyPortraitSR_ = BodyPortrait_.GetComponent<UIAugmentedFaceBodyPortrait>().ScrollViewFacesObj_.GetComponent<ScrollRect>();
 
-			var workerObj_ = GameObject.Find("Worker");
-			var workerObjAFW_ = workerObj_.GetComponent<AugmentedFaceWorker>();
+			uit_.BeginDrag += (e_) => { BodyPortraitSR_.OnBeginDrag(e_); };
+			uit_.Drag += (e_) => { BodyPortraitSR_.OnDrag(e_); };
+			uit_.EndDrag += (e_) => { BodyPortraitSR_.OnEndDrag(e_); };
 
 			uit_.OneEndDrag += (pos_, dir_, mag_, cardDir_) =>
 			{
-				if (cardDir_ != UIDragDirection.Up)
+				if (cardDir_ == UIDragDirection.Up)
 				{
-					return;
+					var WorkerAFW_ = Worker_.GetComponent<AugmentedFaceWorker>();
+					WorkerAFW_.SetFace(FaceInfo_);
 				}
 
-				workerObjAFW_.ChangeFace(FaceInfo_);
+				if (cardDir_ == UIDragDirection.Down)
+				{
+					//#if UNITY_EDITOR
+					//					DestroyImmediate(gameObject);
+					//#else
+					//					Destroy(gameObject);
+					//#endif
+					//					Directory.Delete(FaceInfo_.FolderPath_, true);
+
+					var WorkerAFW_ = Worker_.GetComponent<AugmentedFaceWorker>();
+					WorkerAFW_.SetFace(null);
+				}
 			};
 		}
 
-		public void Initialiaze(string name_,  FaceInfo faceInfo_)
+		public void Initialiaze(string name_, FaceInfo faceInfo_)
 		{
 			FaceInfo_ = faceInfo_;
 
 			name = name_;
 
 			var i_ = GetComponent<RawImage>();
-			i_.texture = GetImage(FaceInfo_.PreviewPath_);
+			i_.texture = FacePartInfo.GetImage(FaceInfo_.PreviewPath_);
 
 			SetupTouch();
 		}

@@ -161,7 +161,7 @@ namespace Assets.Scripts
 		/// <summary>
 		/// 
 		/// </summary>
-		public string MeshObjName_ { get; set; }
+		public int MeshObjIndex_ { get; set; }
 
 		public void SetupTranslation()
 		{
@@ -371,18 +371,18 @@ namespace Assets.Scripts
 			var buttonHideObjectObjB_ = ButtonHideObjectObj_.GetComponent<Button>();
 			var buttonAddLayerObjB_ = ButtonAddLayerObj_.GetComponent<Button>();
 
-			uit_.BeginDrag += (e_, obj_) =>
+			uit_.BeginDrag += e_ =>
 			{
 				UISelection.NoSelect_ = true;
 				bodyLandscapeSR_.OnBeginDrag(e_);
 			};
 
-			uit_.Drag += (e_, obj_) =>
+			uit_.Drag += e_ =>
 			{
 				bodyLandscapeSR_.OnDrag(e_);
 			};
 
-			uit_.EndDrag += (e_, obj_) =>
+			uit_.EndDrag += e_ =>
 			{
 				UISelection.NoSelect_ = false;
 				bodyLandscapeSR_.OnEndDrag(e_);
@@ -455,7 +455,7 @@ namespace Assets.Scripts
 		/// <summary>
 		/// 
 		/// </summary>
-		private void ShowHide()
+		public void ShowHide()
 		{
 			var meshWorkerObjAFCMW_ = MeshWorkerObj_.GetComponent<AugmentedFaceCreatorMeshWorker>();
 

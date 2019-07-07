@@ -210,7 +210,7 @@ namespace Assets.Scripts
 			var meshCameraPivotObjAFCC_ = MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 			var layerCameraPivotObjAFCC_ = LayerCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>();
 
-			meshCameraPivotObjAFCC_.Initialize(textureWidth_, textureHeight_, backgroundMeshCamera_, 0.1f, 10f, Vector3.zero, Vector3.forward);
+			meshCameraPivotObjAFCC_.Initialize(textureWidth_, textureHeight_, backgroundMeshCamera_, 0.1f, 5f, Vector3.zero, Vector3.forward);
 			layerCameraPivotObjAFCC_.Initialize(textureWidth_, textureHeight_, backgroundLayerCamera_, 0.1f, 10f, Vector3.zero, Vector3.back);
 
 			IsInitialized_ = true;

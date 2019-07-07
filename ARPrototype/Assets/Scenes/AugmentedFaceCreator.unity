@@ -2712,8 +2712,8 @@ MonoBehaviour:
     type: 3}
   surfaceMeshPrefab_: {fileID: 3015224124300792063, guid: e207b761f0a00dd43b9ce68222e08a18,
     type: 3}
-  objectsPrefabs_:
-  - {fileID: 8805268470578331173, guid: 2196f95b14e9478448eef0452f22ffca, type: 3}
+  emptyMeshPrefab_: {fileID: 7427150932865820787, guid: 425a58afcbb58ce48961efe7ab299acc,
+    type: 3}
   referenceLayer_: {fileID: 2800000, guid: b558912c594dd8041bc394767f85ae0d, type: 3}
 --- !u!1 &1054538116
 GameObject:

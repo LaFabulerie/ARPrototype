@@ -104,13 +104,13 @@ namespace Assets.Scripts
 		/// <summary>
 		/// Retourne la position par rapport à une ancre.
 		/// </summary>
-		/// <param name="anchorsObj_">Objet portant l'ancre.</param>
+		/// <param name="anchorObj_">Objet portant l'ancre.</param>
 		/// <returns>Décalage par rapport à l'objet.</returns>
-		public Vector3 GetPositionOffset(GameObject anchorsObj_)
+		public Vector3 GetPositionOffset(GameObject anchorObj_)
 		{
-			var referencePivot_ = anchorsObj_.transform.parent.parent.parent;
+			var referencePivot_ = anchorObj_.transform.parent.parent.parent;
 
-			var to_ = anchorsObj_.transform.localPosition;
+			var to_ = anchorObj_.transform.localPosition;
 			to_.x *= referencePivot_.transform.localScale.x;
 			to_.y *= referencePivot_.transform.localScale.y;
 			to_.z *= referencePivot_.transform.localScale.z;
@@ -144,12 +144,13 @@ namespace Assets.Scripts
 		{
 			var meshObjMC_ = MeshObj_.GetComponent<MeshCollider>();
 
+			meshObjMC_.sharedMesh.RecalculateBounds();
+
 			var meshMin_ = meshObjMC_.bounds.min;
 			var meshMax_ = meshObjMC_.bounds.max;
 
 			var cameraMin_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().MinimumBounds_;
 			var cameraMax_ = AugmentedFaceCreatorWorker.MeshCameraPivotObj_.GetComponent<AugmentedFaceCreatorCamera>().MaximumBounds_;
-
 
 			if (meshMin_.x <= 0 && meshMin_.y <= 0 &&
 				meshMax_.x <= 0 && meshMax_.y <= 0)

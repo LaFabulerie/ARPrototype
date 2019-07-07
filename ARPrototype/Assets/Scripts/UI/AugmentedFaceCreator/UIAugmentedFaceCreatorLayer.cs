@@ -303,18 +303,18 @@ namespace Assets.Scripts
 			var buttonMoveForwardObjB_ = ButtonMoveForwardObj_.GetComponent<Button>();
 			var buttonMoveBackwardObjB_ = ButtonMoveBackwardObj_.GetComponent<Button>();
 
-			uit_.BeginDrag += (e_, obj_) =>
+			uit_.BeginDrag += e_ =>
 			{
 				UISelection.NoSelect_ = true;
 				uiObjectObjSR_.OnBeginDrag(e_);
 			};
 
-			uit_.Drag += (e_, obj_) =>
+			uit_.Drag += e_ =>
 			{
 				uiObjectObjSR_.OnDrag(e_);
 			};
 
-			uit_.EndDrag += (e_, obj_) =>
+			uit_.EndDrag += e_ =>
 			{
 				UISelection.NoSelect_ = false;
 				uiObjectObjSR_.OnEndDrag(e_);
