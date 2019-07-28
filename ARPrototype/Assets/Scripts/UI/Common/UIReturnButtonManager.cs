@@ -5,9 +5,6 @@ namespace Assets.Scripts
 {
 	public class UIReturnButtonManager : MonoBehaviour
 	{
-		private float scaledMargin_;
-		private Vector2 scaledButtonSize_;
-
 		[SerializeField]
 		private float marginSize_;
 
@@ -16,8 +13,8 @@ namespace Assets.Scripts
 
 		private void DrawUI(float scale_)
 		{
-			scaledButtonSize_ = buttonSize_ * scale_;
-			scaledMargin_ = marginSize_ * scale_;
+			var scaledButtonSize_ = buttonSize_ * scale_;
+			var scaledMargin_ = marginSize_ * scale_;
 
 			var rt_ = GetComponent<RectTransform>();
 
@@ -29,8 +26,12 @@ namespace Assets.Scripts
 		private void Start()
 		{
 			var canvasObjUICS_ = GameObject.Find("Canvas").GetComponent<UICanvasScaler>();
-			canvasObjUICS_.ChangedScale += DrawUI;
-			canvasObjUICS_.InvokeChangedScaleEvent();
+
+			if (canvasObjUICS_ != null)
+			{
+				canvasObjUICS_.ChangedScale += DrawUI;
+				canvasObjUICS_.InvokeChangedScaleEvent();
+			}
 
 			GetComponent<Button>().onClick.AddListener(() =>
 			{

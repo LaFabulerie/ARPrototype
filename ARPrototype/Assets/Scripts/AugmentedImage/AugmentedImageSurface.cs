@@ -75,7 +75,7 @@ namespace Assets.Scripts
 			});
 		}
 
-		public void Inititialize(AugmentedImage augmentedImage_, MatchingImage matchingImage_, Text debug_)
+		public void Inititialize(AugmentedImage augmentedImage_, MatchingImage matchingImage_)
 		{
 			this.augmentedImage_ = augmentedImage_;
 			this.matchingImage_ = matchingImage_;

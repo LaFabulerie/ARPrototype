@@ -5,31 +5,37 @@ namespace Assets.Scripts
 {
 	public class UINavigationLoaderManager : MonoBehaviour
 	{
-		private Navigation navigation_;
+		private GameObject CanvasObj_ { get => GameObject.Find("Canvas"); }
 
-		private GameObject backgroundObj_;
-		private GameObject hourglassObj_;
+		private GameObject BackgroundObj_ { get => transform.Find("Background")?.gameObject; }
+
+		private GameObject HourglassObj_ { get => BackgroundObj_.transform.Find("Hourglass")?.gameObject; }
+
+
+		private Navigation navigation_;
 
 		private Coroutine rotateCoroutine_;
 
+		[SerializeField]
+		private Vector2 iconSize_;
+
+		[SerializeField]
+		private float marginSize_;
+
 		private IEnumerator Rotate(AsyncOperation op_)
 		{
-			var hourglassRT_ = hourglassObj_.GetComponent<RectTransform>();
+			var hourglassRT_ = HourglassObj_.GetComponent<RectTransform>();
 
 			var angle_ = 360f / 25f;
 			var delay_ = 1f / 25f;
 
-			backgroundObj_.gameObject.SetActive(true);
+			BackgroundObj_.gameObject.SetActive(true);
 
 			while (true)
 			{
 				hourglassRT_.Rotate(Vector3.back, angle_);
 				yield return new WaitForSeconds(delay_);
 			}
-
-			//backgroundObj_.gameObject.SetActive(false);
-
-			//rotateCoroutine_ = null;
 		}
 
 		private void Run(AsyncOperation op_)
@@ -40,19 +46,36 @@ namespace Assets.Scripts
 			}
 		}
 
-		private void OnEnable()
+		private void DrawUI(float scale_)
+		{
+			var scaledIconSize_ = iconSize_ * scale_;
+			var scaledMargin_ = marginSize_ * scale_;
+
+			var rt_ = GetComponent<RectTransform>();
+			rt_.anchoredPosition = new Vector2(scaledMargin_, scaledMargin_ * -1f);
+			rt_.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scaledIconSize_.x);
+			rt_.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scaledIconSize_.y);
+		}
+
+		private void Start()
 		{
 			navigation_ = Navigation.Current_;
 
-			backgroundObj_ = transform.Find("Background")?.gameObject;
-			hourglassObj_ = backgroundObj_.transform.Find("Hourglass")?.gameObject;
-
 			navigation_.Change += Run;
+
+			var canvasObjUICS_ = CanvasObj_.GetComponent<UICanvasScaler>();
+			if (canvasObjUICS_ != null)
+			{
+				canvasObjUICS_.ChangedScale += DrawUI;
+				canvasObjUICS_.InvokeChangedScaleEvent();
+			}
 		}
 
-		private void OnDisable()
+		private void OnDestroy()
 		{
 			StopAllCoroutines();
+
+			rotateCoroutine_ = null;
 
 			navigation_.Change -= Run;
 		}

@@ -254,8 +254,8 @@
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorMeshWorker.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorSurfaceMesh.cs" />
     <Compile Include="Assets\Scripts\AugmentedFaceCreator\AugmentedFaceCreatorWorker.cs" />
-    <Compile Include="Assets\Scripts\AugmentedImage\AugmentedImageManager.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\AugmentedImageSurface.cs" />
+    <Compile Include="Assets\Scripts\AugmentedImage\AugmentedImageWorker.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\ImagePlayer.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\MatchingImage.cs" />
     <Compile Include="Assets\Scripts\AugmentedImage\MatchingImageDatabase.cs" />
@@ -265,13 +265,11 @@
     <Compile Include="Assets\Scripts\Common\FacePartInfo.cs" />
     <Compile Include="Assets\Scripts\Common\Navigation.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentedFace\AugmentedFaceFaceData.cs" />
-    <Compile Include="Assets\Scripts\UI\AugmentedFace\UIAugmentedFaceBodyPortrait.cs" />
+    <Compile Include="Assets\Scripts\UI\AugmentedFace\UIAugmentedFaceBody.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentedFaceCreator\UIAugmentedFaceCreatorBodyLandscape.cs" />
-    <Compile Include="Assets\Scripts\UI\AugmentedFaceCreator\UIAugmentedFaceCreatorBodyPortrait.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentedFaceCreator\UIAugmentedFaceCreatorLayer.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentedFaceCreator\UIAugmentedFaceCreatorObject.cs" />
-    <Compile Include="Assets\Scripts\UI\AugmentedImage\UIAugmentedImageLandscape.cs" />
-    <Compile Include="Assets\Scripts\UI\AugmentedImage\UIAugmentedImagePortrait.cs" />
+    <Compile Include="Assets\Scripts\UI\AugmentedImage\UIAugmentedImageBody.cs" />
     <Compile Include="Assets\Scripts\UI\Common\UIBodyRotation.cs" />
     <Compile Include="Assets\Scripts\UI\Common\UICanvasScaler.cs" />
     <Compile Include="Assets\Scripts\UI\Common\UINavigationLoaderManager.cs" />

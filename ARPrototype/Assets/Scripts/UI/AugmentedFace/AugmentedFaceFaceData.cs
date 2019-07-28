@@ -9,14 +9,14 @@ namespace Assets.Scripts
 	{
 		public GameObject Worker_ => GameObject.Find("Worker");
 
-		public GameObject BodyPortrait_ => GameObject.Find("Body-Portrait");
+		public GameObject Body_ => GameObject.Find("Body");
 
 		public FaceInfo FaceInfo_ { get; private set; }
 
 		private void SetupTouch()
 		{
 			var uit_ = GetComponent<UITouch>();
-			var BodyPortraitSR_ = BodyPortrait_.GetComponent<UIAugmentedFaceBodyPortrait>().ScrollViewFacesObj_.GetComponent<ScrollRect>();
+			var BodyPortraitSR_ = Body_.GetComponent<UIAugmentedFaceBody>().ScrollViewFacesObj_.GetComponent<ScrollRect>();
 
 			uit_.BeginDrag += (e_) => { BodyPortraitSR_.OnBeginDrag(e_); };
 			uit_.Drag += (e_) => { BodyPortraitSR_.OnDrag(e_); };
