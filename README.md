@@ -2,7 +2,6 @@
 
 # To do
 
-- Vérifier Augmented Image,
-- Finir les commentaires sur l'ensemble.
+- Finir la documentation.
 
 En cours...
