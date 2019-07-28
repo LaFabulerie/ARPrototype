@@ -106,7 +106,7 @@ abf1930d8126d0b2e00e9449129a0190 UnityEngine.UI.dll:UnityEngine.EventSystems.Tou
 64e54c0cbb0177c5ea26f340efb9ff85 UnityEngine.UI.dll:UnityEngine.UI.VerticalLayoutGroup
 6c529a2c31a849330040f61e38b86d9f Assembly-CSharp.dll:Assets.Scripts.UIMainMenuBodyLandscape
 4ef6539ed83bb9d241cb3a4b7b42c415 Assembly-CSharp.dll:.BallMaker
-9344b1b553b7728eab12d3b7678a7c47 Assembly-CSharp.dll:Assets.Scripts.AugmentedImageSurface
+c2af343cfb43eb96a333b6e518b284fb Assembly-CSharp.dll:Assets.Scripts.AugmentedImageSurface
 1cc9da185c150ad3ff63e08ac66e11a0 Assembly-CSharp.dll:.ARReferenceObjectsSetAsset
 c7db907b0e6d8ff95bbf7eb881c20648 Assembly-CSharp.dll:.UnityARCameraManager
 5c0880dfab6b0790ce0d0ccd3dac0c3f Assembly-CSharp.dll:.UnityARFaceMeshManager
@@ -146,7 +146,7 @@ ad9173d3a69d99153f38ed4b62226129 UnityEngine.Networking.dll:UnityEngine.Networki
 281f258aa5168f989b50d54a0bc89f90 Assembly-CSharp.dll:.ARCameraTracker
 d251bf88db6c95a6b1aa0b69298da9ef UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:GoogleARCore.Examples.ObjectManipulation.ManipulationSystem
-0caee9447fde66ed03cfabe1fd92924e Assembly-CSharp.dll:Assets.Scripts.AppManager
+eb044582bbe5e0375709581295fdf0a0 Assembly-CSharp.dll:Assets.Scripts.AppManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:Assets.Scripts.UISelection
 ef4cb41fcd9ad2c83c259d89c5a4723f Assembly-CSharp.dll:.WorldMapManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:GoogleARCore.EnvironmentalLight
@@ -244,7 +244,7 @@ b85846f48e1ece0b134e0e1251b6301d Assembly-CSharp.dll:UnityEngine.XR.iOS.UnityRem
 81a231bcb5007010c269ce4e4a5c4335 Assembly-CSharp.dll:.Ballz
 57be11eff65fbb17c758d8a374cc5cec Assembly-CSharp.dll:.UpdateWorldMappingStatus
 269133bf6785f1e198f98a5b4b08eda1 Assembly-CSharp.dll:GoogleARCore.Examples.CloudAnchors.ARCoreWorldOriginHelper
-9861de3bc26572caf0461de8b54151b6 Assembly-CSharp.dll:Assets.Scripts.AugmentedImageManager
+ebad44f3efcdabfecb36814a1e1622af Assembly-CSharp.dll:Assets.Scripts.AugmentedImageManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:UnityEngine.XR.iOS.UnityARAmbient
 71bb6a6b6c8f052f948db64c7dd3ca4f Unity.Analytics.Editor.dll:UnityEditor.Analytics.AnalyticsEventTrackerEditor
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.BlendshapeDriver
@@ -267,7 +267,7 @@ acd6e9b47d9eb18143f0e406b1e68787 Assembly-CSharp.dll:.ParticlePainter
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:Assets.Scripts.AugmentedFaceCreatorLayerWorker
 efee04fd7a8b900e85d693e88d5b5f35 Assembly-CSharp.dll:.ColorPicker
 c896001203784eaf50c0839b7a358365 Assembly-CSharp.dll:.UnityARKitPluginSettings
-0781bf767e804fe0717d1b7afb4da78d Assembly-CSharp.dll:Assets.Scripts.MatchingImageDatabase
+330f7cb0774fd3068385b85549c407ba Assembly-CSharp.dll:Assets.Scripts.MatchingImageDatabase
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:GoogleARCore.Examples.ObjectManipulation.RotationManipulator
 7949738ace4f5cbe3f21484e8391d331 Assembly-CSharp.dll:.ObjectScanManager
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:GoogleARCore.Examples.ObjectManipulation.ObjectManipulationController

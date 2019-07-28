@@ -17,17 +17,23 @@ namespace Assets.Scripts
 			{
 				case Orientation.Portrait:
 				case Orientation.ReversePortrait:
-					if (appManager_.EnableLandscape_)
+					if (bodyPortrait_ != null)
 					{
 						bodyPortrait_.SetActive(true);
+					}
+					if (bodyLandscape_ != null)
+					{
 						bodyLandscape_.SetActive(false);
 					}
 					break;
 				case Orientation.LandscapeRight:
 				case Orientation.LandscapeLeft:
-					if (appManager_.EnableLandscape_)
+					if (bodyPortrait_ != null)
 					{
 						bodyPortrait_.SetActive(false);
+					}
+					if (bodyLandscape_ != null)
+					{
 						bodyLandscape_.SetActive(true);
 					}
 					break;
@@ -40,11 +46,22 @@ namespace Assets.Scripts
 			appManager_ = AppManager.Current_;
 
 			// UIs
-			bodyPortrait_ = transform.Find("Body-Portrait").gameObject;
+			bodyPortrait_ = transform.Find("Body-Portrait")?.gameObject;
 			bodyLandscape_ = transform.Find("Body-Landscape")?.gameObject;
 
 			// Setup
-			appManager_.EnableLandscape_ = bodyLandscape_ != null;
+			if (bodyPortrait_ != null && bodyLandscape_ == null)
+			{
+				appManager_.FreedomOfOrientation = FreedomOfOrientation.Portrait;
+			}
+			else if (bodyPortrait_ == null && bodyLandscape_ != null)
+			{
+				appManager_.FreedomOfOrientation = FreedomOfOrientation.Landscape;
+			}
+			else
+			{
+				appManager_.FreedomOfOrientation = FreedomOfOrientation.All;
+			}
 
 			// Events
 			appManager_.OrientationChanged += Rotate;

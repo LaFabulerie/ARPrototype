@@ -14,6 +14,8 @@ namespace Assets.Scripts
 
 		public MatchingImageDatabase matchingImages_;
 
+		public Text debug_;
+
 		void Start()
 		{
 			updatedImages_ = new List<AugmentedImage>();
@@ -34,6 +36,8 @@ namespace Assets.Scripts
 			// Pour chacun des objets traçable...
 			foreach (var updatedImage_ in updatedImages_)
 			{
+				//debug_.text = $"{updatedImage_.TrackingState} {updatedImage_.TrackingMethod} {Time.time}";
+
 				// Si l'image est suivi et qu'aucun objet de suivi existe.
 				if (!trackedObjects_.ContainsKey(updatedImage_.DatabaseIndex) &&
 					updatedImage_.TrackingState == TrackingState.Tracking)
@@ -51,23 +55,26 @@ namespace Assets.Scripts
 					trackedObjects_[updatedImage_.DatabaseIndex].transform.localScale = Vector3.one;
 
 					// Initialise...
-					trackedObjects_[updatedImage_.DatabaseIndex].GetComponent<AugmentedImageSurface>().Inititialize(updatedImage_, matchingImages_[updatedImage_.DatabaseIndex]);
+					trackedObjects_[updatedImage_.DatabaseIndex].GetComponent<AugmentedImageSurface>().Inititialize(updatedImage_, matchingImages_[updatedImage_.DatabaseIndex], debug_);
 				}
 
-				// Met à jour le temps.
 				if (trackedObjects_.ContainsKey(updatedImage_.DatabaseIndex))
 				{
-					//
-					trackedObjects_[updatedImage_.DatabaseIndex].GetComponent<AugmentedImageSurface>().LastUpdatedTime_ = Time.time;
+					var ais_ = trackedObjects_[updatedImage_.DatabaseIndex].GetComponent<AugmentedImageSurface>();
+
+					switch (updatedImage_.TrackingMethod)
+					{
+						case AugmentedImageTrackingMethod.NotTracking:
+							break;
+						case AugmentedImageTrackingMethod.FullTracking:
+							ais_.Play();
+							break;
+						case AugmentedImageTrackingMethod.LastKnownPose:
+							ais_.Stop();
+							break;
+					}
+
 				}
-			}
-
-			var keyToDeletes_ = from item_ in trackedObjects_ where item_.Value.GetComponent<AugmentedImageSurface>().IsOld_ select item_.Key;
-
-			foreach (var keyToDelete_ in keyToDeletes_)
-			{
-				Destroy(trackedObjects_[keyToDelete_]);
-				trackedObjects_.Remove(keyToDelete_);
 			}
 		}
 	}

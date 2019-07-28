@@ -17,15 +17,14 @@ namespace Assets.Scripts
 		private Coroutine currentCoroutine_;
 		private Vector3 positon_;
 
-		public float disparitionDelay_ = 2f;
 		public AugmentedImage augmentedImage_;
 		public MatchingImage matchingImage_;
 
 		private MeshCollider mc_;
 
 		public bool IsInitialized_ { get; private set; }
-		public float LastUpdatedTime_ { get; set; }
-		public bool IsOld_ { get; private set; }
+
+		public bool IsRunning_ { get; private set; }
 
 		private void ComputeVertices()
 		{
@@ -76,12 +75,11 @@ namespace Assets.Scripts
 			});
 		}
 
-		public void Inititialize(AugmentedImage augmentedImage_, MatchingImage matchingImage_)
+		public void Inititialize(AugmentedImage augmentedImage_, MatchingImage matchingImage_, Text debug_)
 		{
 			this.augmentedImage_ = augmentedImage_;
 			this.matchingImage_ = matchingImage_;
 
-			LastUpdatedTime_ = Time.time;
 			IsInitialized_ = true;
 
 			mesh_ = new Mesh();
@@ -96,10 +94,23 @@ namespace Assets.Scripts
 			GetComponent<MeshFilter>().mesh = mesh_;
 			GetComponent<MeshRenderer>().material = matchingImage_.material_;
 
+			GetComponent<MeshCollider>().sharedMesh = mesh_;
+		}
+
+		public void Play()
+		{
+			if (!IsInitialized_ ||
+				IsRunning_)
+			{
+				return;
+			}
+
+			gameObject.SetActive(true);
+
 			switch (matchingImage_.type_)
 			{
 				case MatchingImageType.Image:
-					GetComponent<ImagePlayer>().images_ = new List<Texture2D>(1) { matchingImage_.image_ };
+					GetComponent<ImagePlayer>().images_ = new List<Texture2D>(1) { matchingImage_.texture_ };
 					GetComponent<ImagePlayer>().textureName_ = matchingImage_.textureName_;
 					GetComponent<ImagePlayer>().timeInterFrame_ = matchingImage_.timeInterFrame_;
 					GetComponent<ImagePlayer>().isLooping_ = true;
@@ -107,7 +118,7 @@ namespace Assets.Scripts
 					break;
 				case MatchingImageType.Images:
 					GetComponent<MeshRenderer>().material = matchingImage_.material_;
-					GetComponent<ImagePlayer>().images_ = matchingImage_.images_;
+					GetComponent<ImagePlayer>().images_ = matchingImage_.textures_;
 					GetComponent<ImagePlayer>().textureName_ = matchingImage_.textureName_;
 					GetComponent<ImagePlayer>().timeInterFrame_ = matchingImage_.timeInterFrame_;
 					GetComponent<ImagePlayer>().isLooping_ = true;
@@ -122,41 +133,40 @@ namespace Assets.Scripts
 					break;
 			}
 
-			GetComponent<MeshCollider>().sharedMesh = mesh_;
+			IsRunning_ = true;
+		}
+
+		public void Stop()
+		{
+			if (!IsRunning_)
+			{
+				return;
+			}
+
+			gameObject.SetActive(false);
+
+			switch (matchingImage_.type_)
+			{
+				case MatchingImageType.Image:
+				case MatchingImageType.Images:
+					GetComponent<ImagePlayer>().Stop();
+					break;
+				case MatchingImageType.Video:
+					GetComponent<VideoPlayer>().Stop();
+					break;
+			}
+
+			IsRunning_ = false;
 		}
 
 		private void Update()
 		{
-			IsOld_ = IsInitialized_ && Time.time >= LastUpdatedTime_ + disparitionDelay_;
-
-			if (IsOld_)
+			if (IsRunning_)
 			{
-				gameObject.SetActive(false);
+				transform.localPosition = new Vector3(matchingImage_.offset_.x * augmentedImage_.ExtentX, 0f, matchingImage_.offset_.y * augmentedImage_.ExtentZ);
 
-				switch (matchingImage_.type_)
-				{
-					case MatchingImageType.Images:
-						if (currentCoroutine_ != null)
-						{
-							StopCoroutine(currentCoroutine_);
-						}
-						break;
-					case MatchingImageType.Video:
-						if (GetComponent<VideoPlayer>().isPlaying)
-						{
-							GetComponent<VideoPlayer>().Stop();
-						}
-						break;
-				}
-
-				return;
+				ComputeVertices();
 			}
-
-			transform.localPosition = new Vector3(matchingImage_.offset_.x * augmentedImage_.ExtentX, 0f, matchingImage_.offset_.y * augmentedImage_.ExtentZ);
-
-			ComputeVertices();
-
-			gameObject.SetActive(true);
 		}
 	}
 }

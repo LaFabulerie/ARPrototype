@@ -13,10 +13,14 @@ namespace Assets.Scripts
 #if (UNITY_EDITOR)
 		[SerializeField]
 		private AugmentedImageDatabase augmentedImages_;
+
+		public bool NoDetectorsDatabase_ => augmentedImages_ == null;
 #endif
 
 		[SerializeField]
 		private List<MatchingImage> matchingImages_ = new List<MatchingImage>();
+
+		public int Count => matchingImages_.Count;
 
 		public MatchingImage this[int index_]
 		{

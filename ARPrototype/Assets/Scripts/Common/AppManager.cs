@@ -7,6 +7,13 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
+	public enum FreedomOfOrientation
+	{
+		All,
+		Portrait,
+		Landscape,
+	}
+
 	public enum Orientation
 	{
 		Portrait,
@@ -36,14 +43,14 @@ namespace Assets.Scripts
 		private Orientation prevOrientation_;
 
 		[SerializeField]
-		private bool enableLandscape_;
+		private FreedomOfOrientation freedomOfOrientation_;
 
-		public bool EnableLandscape_
+		public FreedomOfOrientation FreedomOfOrientation
 		{
-			get => enableLandscape_;
+			get => freedomOfOrientation_;
 			set
 			{
-				enableLandscape_ = value;
+				freedomOfOrientation_ = value;
 			}
 		}
 
@@ -69,74 +76,100 @@ namespace Assets.Scripts
 		private IEnumerator RotateScreenManager()
 		{
 			Orientation_ = Orientation.Portrait;
-			UnityEngine.Screen.orientation = ScreenOrientation.Portrait;
+			Screen.orientation = ScreenOrientation.Portrait;
 
 			while (true)
 			{
+				switch (FreedomOfOrientation)
+				{
+					case FreedomOfOrientation.Portrait:
 #if UNITY_EDITOR
-				if (UnityEngine.Screen.width > UnityEngine.Screen.height  &&
-					enableLandscape_)
-				{
-					Orientation_ = Orientation.LandscapeRight;
-					UnityEngine.Screen.orientation = ScreenOrientation.LandscapeRight;
-				}
-				else
-				{
-					Orientation_ = Orientation.Portrait;
-					UnityEngine.Screen.orientation = ScreenOrientation.Portrait;
-				}
-#else
-				switch (Input.deviceOrientation)
-				{
-					case DeviceOrientation.Unknown:
-					case DeviceOrientation.Portrait:
 						Orientation_ = Orientation.Portrait;
-						UnityEngine.Screen.orientation = ScreenOrientation.Portrait;
-						break;
-					case DeviceOrientation.PortraitUpsideDown:
-						Orientation_ = Orientation.ReversePortrait;
-						UnityEngine.Screen.orientation = ScreenOrientation.PortraitUpsideDown;
-						break;
-					case DeviceOrientation.LandscapeLeft:
-						if (enableLandscape_)
+						Screen.orientation = ScreenOrientation.Portrait;
+#else
+						switch (Input.deviceOrientation)
 						{
-							Orientation_ = Orientation.LandscapeLeft;
-							UnityEngine.Screen.orientation = ScreenOrientation.LandscapeLeft;
+							case DeviceOrientation.Unknown:
+							case DeviceOrientation.LandscapeLeft:
+							case DeviceOrientation.LandscapeRight:
+							case DeviceOrientation.FaceUp:
+							case DeviceOrientation.FaceDown:
+							case DeviceOrientation.Portrait:
+								Orientation_ = Orientation.ReversePortrait;
+								Screen.orientation = ScreenOrientation.Portrait;
+								break;
+							case DeviceOrientation.PortraitUpsideDown:
+								Orientation_ = Orientation.ReversePortrait;
+								Screen.orientation = ScreenOrientation.PortraitUpsideDown;
+								break;
 						}
-						else
-						{
-							if (!(Orientation_ == Orientation.Portrait ||
-								Orientation_ == Orientation.ReversePortrait))
-							{
-								Orientation_ = Orientation.Portrait;
-								UnityEngine.Screen.orientation = ScreenOrientation.Portrait;
-							}
-						}
+#endif
 						break;
-					case DeviceOrientation.LandscapeRight:
-						if (enableLandscape_)
+					case FreedomOfOrientation.Landscape:
+#if UNITY_EDITOR
+						Orientation_ = Orientation.LandscapeRight;
+						Screen.orientation = ScreenOrientation.LandscapeRight;
+#else
+						switch (Input.deviceOrientation)
+						{
+							case DeviceOrientation.Unknown:
+							case DeviceOrientation.Portrait:
+							case DeviceOrientation.PortraitUpsideDown:
+							case DeviceOrientation.FaceUp:
+							case DeviceOrientation.FaceDown:
+							case DeviceOrientation.LandscapeRight:
+								Orientation_ = Orientation.LandscapeRight;
+								Screen.orientation = ScreenOrientation.LandscapeRight;
+								break;
+							case DeviceOrientation.LandscapeLeft:
+								Orientation_ = Orientation.LandscapeLeft;
+								Screen.orientation = ScreenOrientation.LandscapeLeft;
+								break;
+						}
+#endif
+						break;
+					case FreedomOfOrientation.All:
+#if UNITY_EDITOR
+						if (Screen.width > Screen.height)
 						{
 							Orientation_ = Orientation.LandscapeRight;
-							UnityEngine.Screen.orientation = ScreenOrientation.LandscapeRight;
+							Screen.orientation = ScreenOrientation.LandscapeRight;
 						}
 						else
 						{
-							if (!(Orientation_ == Orientation.Portrait ||
-								Orientation_ == Orientation.ReversePortrait))
-							{
-								Orientation_ = Orientation.Portrait;
-								UnityEngine.Screen.orientation = ScreenOrientation.Portrait;
-							}
+							Orientation_ = Orientation.Portrait;
+							Screen.orientation = ScreenOrientation.Portrait;
 						}
-						break;
-					case DeviceOrientation.FaceUp:
-						Orientation_ = Orientation.Horizontal;
-						break;
-					case DeviceOrientation.FaceDown:
-						Orientation_ = Orientation.Horizontal;
+#else
+						switch (Input.deviceOrientation)
+						{
+							case DeviceOrientation.Unknown:
+							case DeviceOrientation.Portrait:
+								Orientation_ = Orientation.ReversePortrait;
+								Screen.orientation = ScreenOrientation.Portrait;
+								break;
+							case DeviceOrientation.PortraitUpsideDown:
+								Orientation_ = Orientation.ReversePortrait;
+								Screen.orientation = ScreenOrientation.PortraitUpsideDown;
+								break;
+							case DeviceOrientation.LandscapeLeft:
+								Orientation_ = Orientation.LandscapeLeft;
+								Screen.orientation = ScreenOrientation.LandscapeLeft;
+								break;
+							case DeviceOrientation.LandscapeRight:
+								Orientation_ = Orientation.LandscapeRight;
+								Screen.orientation = ScreenOrientation.LandscapeRight;
+								break;
+							case DeviceOrientation.FaceUp:
+								Orientation_ = Orientation.Horizontal;
+								break;
+							case DeviceOrientation.FaceDown:
+								Orientation_ = Orientation.Horizontal;
+								break;
+						}
+#endif
 						break;
 				}
-#endif
 
 				if (Orientation_ != prevOrientation_)
 				{
@@ -154,7 +187,7 @@ namespace Assets.Scripts
 
 				prevOrientation_ = Orientation_;
 
-				yield return null; 
+				yield return null;
 			}
 		}
 

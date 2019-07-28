@@ -60,6 +60,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\MatchingImageDatabaseEditor.cs" />
+    <Compile Include="Assets\Editor\MatchingImageDrawer.cs" />
     <Compile Include="Assets\GoogleARCore\Examples\Common\Scripts\Editor\PointcloudVisualizerEditor.cs" />
     <Compile Include="Assets\GoogleARCore\SDK\InstantPreview\Scripts\Editor\InstantPreviewBugReport.cs" />
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\Editor\Analytics\ArcoreClearcut.cs" />
