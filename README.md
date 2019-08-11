@@ -1,7 +1,21 @@
+[Logo](Images/Logo.png "Logo de La Fabulerie.")
+
+[Icon](Images/Icon.png "Icon de l'application.")
+
 # ARPrototype
 
-# To do
+...
 
-- Finir la documentation.
+## Comment ça marche ?
 
-En cours...
+### Augmented Image
+
+...
+
+### Augmented Face
+
+...
+
+### Augmented Face Creator
+
+...
