@@ -1,6 +1,6 @@
-[Logo](Images/Logo.png "Logo de La Fabulerie.")
+![Logo](Images/Logo.png)
 
-[Icon](Images/Icon.png "Icon de l'application.")
+![Icon](Images/Icon.png)
 
 # ARPrototype
 
