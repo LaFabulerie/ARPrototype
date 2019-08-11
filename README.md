@@ -1,7 +1,5 @@
 ![Logo](Images/Logo.png)
 
-![Icon](Images/Icon.png)
-
 # ARPrototype
 
 ...
