@@ -16,6 +16,6 @@
 
 ### Augmented Face Creator
 
-![Screenshot AFC](Images\Screenshot_AFC.jpg)
+![Screenshot AFC](Images/Screenshot_AFC.jpg)
 
 ...
