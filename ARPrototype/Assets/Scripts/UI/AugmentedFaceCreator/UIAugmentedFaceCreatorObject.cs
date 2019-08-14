@@ -428,7 +428,7 @@ namespace Assets.Scripts
 			IsInitialized = true;
 
 			name = $"UIObject-{transform.GetSiblingIndex():D3}";
-			ObjectNameObj_.GetComponent<Text>().text = name;
+			ObjectNameObj_.GetComponent<Text>().text = $"Object-{transform.GetSiblingIndex():D3}";
 
 			SetupButton();
 

@@ -119,10 +119,4 @@ La barre de gauche contient l'ensemble des outils disponibles pour le traitement
 4. Active le mode de mise à l'échelle de l'objet ou du calque selectionné. La mise à l'échelle s'effectue par un geste de pincement sur l'écran.
     - Horizontalement, le recadrage s'effectue sur l'axe X.
     - Verticalement, le recadrage s'effectue sur l'axe Y.
-    - En diagonale, le recadrage s'effectue sur les deux axes X et Y afin de conserver la proportion.  
-
-# A faire
-
-- marge entre les différents modules.
-- nom de l'objet dans Augmented Face Creator.
-- vérifier l'impression des calques en fonctions de la visibilité.
+    - En diagonale, le recadrage s'effectue sur les deux axes X et Y afin de conserver la proportion.
