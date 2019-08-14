@@ -1,0 +1,236 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36fb5429b0995d54a9fa41167e807991, type: 3}
+  m_Name: Matching Image Example Database
+  m_EditorClassIdentifier: 
+  augmentedImages_: {fileID: 11400000, guid: c3e077e231877401e8d2163ebbbc9dc6, type: 2}
+  matchingImages_:
+  - hashCode_: 946698240
+    databaseIndex_: 0
+    databaseEntryTexture_: {fileID: 2800000, guid: 260f5f218a40e49c0a0a55c499a121a8,
+      type: 3}
+    databaseEntryName_: Earth
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Earth
+      Width: 0
+      Quality: 100
+      TextureGUID: 260f5f218a40e49c0a0a55c499a121a8
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 2100000, guid: 99aaf0b69f7abf64bae5826e2a3cb55f, type: 2}
+    offset_: {x: 0, y: 0}
+  - hashCode_: 588055296
+    databaseIndex_: 1
+    databaseEntryTexture_: {fileID: 2800000, guid: eb5110f6dab7f4990b554f43afb86d1c,
+      type: 3}
+    databaseEntryName_: Cafe
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Cafe
+      Width: 0
+      Quality: 100
+      TextureGUID: eb5110f6dab7f4990b554f43afb86d1c
+    isChanged_: 0
+    type_: 1
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 2100000, guid: 99aaf0b69f7abf64bae5826e2a3cb55f, type: 2}
+    offset_: {x: 0, y: 0}
+  - hashCode_: 229412352
+    databaseIndex_: 2
+    databaseEntryTexture_: {fileID: 2800000, guid: 9d2a3984082644fd984fe961b7f8272e,
+      type: 3}
+    databaseEntryName_: Keyboard
+    databaseEntryQuality_: 95
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Keyboard
+      Width: 0
+      Quality: 95
+      TextureGUID: 9d2a3984082644fd984fe961b7f8272e
+    isChanged_: 0
+    type_: 2
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 2100000, guid: 99aaf0b69f7abf64bae5826e2a3cb55f, type: 2}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -129230592
+    databaseIndex_: 3
+    databaseEntryTexture_: {fileID: 2800000, guid: 42bc152179d434ef8b9a73da7cf757e2,
+      type: 3}
+    databaseEntryName_: Winter
+    databaseEntryQuality_: 85
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Winter
+      Width: 0
+      Quality: 85
+      TextureGUID: 42bc152179d434ef8b9a73da7cf757e2
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -487873536
+    databaseIndex_: 4
+    databaseEntryTexture_: {fileID: 2800000, guid: f372f305c00af444c8cb5eb7277ca24b,
+      type: 3}
+    databaseEntryName_: Dog
+    databaseEntryQuality_: 90
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Dog
+      Width: 0
+      Quality: 90
+      TextureGUID: f372f305c00af444c8cb5eb7277ca24b
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -846516480
+    databaseIndex_: 5
+    databaseEntryTexture_: {fileID: 2800000, guid: 8be06d62721bd4d03a9a318d96e1490f,
+      type: 3}
+    databaseEntryName_: Clothing
+    databaseEntryQuality_: 85
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Clothing
+      Width: 0
+      Quality: 85
+      TextureGUID: 8be06d62721bd4d03a9a318d96e1490f
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -1205159424
+    databaseIndex_: 6
+    databaseEntryTexture_: {fileID: 2800000, guid: 0abeb4ecc05154f7d9bed5316c0faf53,
+      type: 3}
+    databaseEntryName_: Coffee
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Coffee
+      Width: 0
+      Quality: 100
+      TextureGUID: 0abeb4ecc05154f7d9bed5316c0faf53
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -1563802368
+    databaseIndex_: 7
+    databaseEntryTexture_: {fileID: 2800000, guid: 7086f3cca96744118a7a82f93646e70b,
+      type: 3}
+    databaseEntryName_: Fire
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Fire
+      Width: 0
+      Quality: 100
+      TextureGUID: 7086f3cca96744118a7a82f93646e70b
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: -1922445312
+    databaseIndex_: 8
+    databaseEntryTexture_: {fileID: 2800000, guid: 794ab710665f5492aab79cd5106ce18c,
+      type: 3}
+    databaseEntryName_: Engine
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Engine
+      Width: 0
+      Quality: 100
+      TextureGUID: 794ab710665f5492aab79cd5106ce18c
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
+  - hashCode_: 2013879040
+    databaseIndex_: 9
+    databaseEntryTexture_: {fileID: 2800000, guid: dcb12afed0f0a4ed6a26a0b49e5b66cf,
+      type: 3}
+    databaseEntryName_: Flowers
+    databaseEntryQuality_: 100
+    databaseEntryWidth_: 0
+    databaseEntry_:
+      Name: Flowers
+      Width: 0
+      Quality: 100
+      TextureGUID: dcb12afed0f0a4ed6a26a0b49e5b66cf
+    isChanged_: 0
+    type_: 0
+    textureName_: _MainTex
+    texture_: {fileID: 0}
+    texturesFolderPath_: 
+    textures_: []
+    timeInterFrame_: 0
+    video_: {fileID: 0}
+    material_: {fileID: 0}
+    offset_: {x: 0, y: 0}
